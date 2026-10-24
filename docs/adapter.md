@@ -73,6 +73,6 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ## Sources
 
-A source is where Lookout gets the document: a file path or an `http(s)` URL (the file or URL is read again on every refresh). The checker in `lib/contract.js` (`validateFleet`) returns the list of problems, each as `path: message`; an empty list means the document is valid. `adapters/sample-fleet/fleet.json` is a complete example.
+A source (the adapter) is where Lookout gets the document: a file path or an `http(s)` URL (the file or URL is read again on every refresh). `lookout check --adapter <path|url>` lists every problem in a document, and `lookout serve --adapter <path|url>` serves the dashboard from it. The checker in `lib/contract.js` (`validateFleet`) returns the list of problems, each as `path: message`; an empty list means the document is valid. `adapters/sample-fleet/fleet.json` is a complete example.
 
 Vendor-specific adapters live outside this repository and feed the file or URL source; this repository carries no vendor names or paths.

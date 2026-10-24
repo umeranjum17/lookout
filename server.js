@@ -1,5 +1,4 @@
-#!/usr/bin/env node
-// Serves the app and the fleet document from one source: node server.js [--source <file|url>] [--port N] [--bind ADDR]
+// Serves the app and the fleet document from one source (a file or URL); bin/lookout.js is the command that starts it.
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
 import { extname, join, normalize, sep } from 'node:path'
@@ -10,7 +9,7 @@ const root = fileURLToPath(new URL('.', import.meta.url))
 const appDir = join(root, 'app')
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.json': 'application/json' }
-const version = JSON.parse(await readFile(join(root, 'package.json'), 'utf8')).version
+export const version = JSON.parse(await readFile(join(root, 'package.json'), 'utf8')).version
 const HEADERS = { 'content-security-policy': "default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'", 'x-content-type-options': 'nosniff' }
 
 export function createApp(source) {
@@ -32,8 +31,3 @@ export function createApp(source) {
   })
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const arg = (name, dflt) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : dflt }
-  const source = arg('--source', join(root, 'adapters/sample-fleet/fleet.json')), port = Number(arg('--port', 4390)), bind = arg('--bind', '127.0.0.1')
-  createApp(source).listen(port, bind, () => console.log(`lookout ${version} on http://${bind}:${port} reading ${source}`))
-}
