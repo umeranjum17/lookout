@@ -131,7 +131,7 @@ a.row:hover{background:var(--tile)}
 .ch{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px}
 .key{display:flex;gap:12px;font-size:12px;color:var(--ink-2)}.key span{display:flex;align-items:center;gap:6px}
 .key i{width:10px;height:10px;border-radius:3px}.key .ok{background:var(--acc)}.key .bad{background:var(--red)}
-.plot{position:relative;min-width:0}.plot svg{display:block;touch-action:pan-y}.plot svg:focus-visible{outline-offset:4px;border-radius:8px}
+.plot{position:relative;min-width:0}.plot.fill{flex:1;min-height:200px}.plot.fill svg{position:absolute;top:0;left:0}.plot svg{display:block;touch-action:pan-y}.plot svg:focus-visible{outline-offset:4px;border-radius:8px}
 .grid{stroke:var(--line);stroke-width:1}.cap{stroke:var(--ink-3);stroke-width:1}
 .ax{fill:var(--ink-3);font-size:11px;font-variant-numeric:tabular-nums}.val{fill:var(--ink-2);font-size:11px;font-weight:550}
 .area{fill:var(--acc);opacity:.08}.ln,.sl{fill:none;stroke:var(--acc);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
