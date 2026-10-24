@@ -1,13 +1,17 @@
 {
-  "name": "lookout",
+  "name": "lookout-axi",
   "version": "0.1.0",
-  "private": true,
   "description": "See your agent fleet at a glance: lanes, workers, quota runway, merge flow, host load and releases.",
   "license": "MIT",
   "type": "module",
+  "bin": { "lookout": "bin/lookout.js", "lookout-axi": "bin/lookout.js" },
+  "files": ["bin/lookout.js", "server.js", "lib", "app", "adapters", "docs/adapter.md", "skills/lookout-axi"],
   "engines": { "node": ">=20" },
+  "repository": { "type": "git", "url": "git+https://github.com/umeranjum17/lookout.git" },
+  "homepage": "https://github.com/umeranjum17/lookout",
+  "keywords": ["axi", "agent", "cli", "dashboard", "observability", "fleet"],
   "scripts": {
-    "start": "node server.js",
+    "start": "node bin/lookout.js serve",
     "sample": "bin/run-sample.sh",
     "test": "node --test"
   }
