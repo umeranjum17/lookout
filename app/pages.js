@@ -1,4 +1,4 @@
-import { html, back, ago, open, STAGES, laneOrder } from './ui.js'
+import { html, back, ago, open, STAGES, laneOrder, State } from './ui.js'
 
 const Meter = ({ pct, label }) => html`<div class="bar" role="img" aria-label=${label}><i style=${{ width: `${Math.min(100, pct)}%` }}></i></div>`
 const Missing = ({ what }) => html`<div class="card empty"><b>${what} not found</b><a class="pr" href="#/lanes">Back to lanes</a></div>`
@@ -16,12 +16,12 @@ export function LanePage({ fleet, id }) {
   const ws = fleet.workers.filter(w => w.lane === id), inc = fleet.incidents.filter(i => i.lane === id), mg = fleet.merges.filter(m => m.lane === id)
   return html`<${PrevNext} items=${laneOrder(fleet)} id=${id} href=${l => `#/lane/${l.id}`}/>
     <ol class="steps" aria-label="Stage">${STAGES.map(([k, name], i) => html`<li key=${k} class=${i < at ? 'past' : i === at ? 'now' : ''} aria-current=${i === at ? 'step' : null}>${name}</li>`)}</ol>
-    <${Facts} rows=${[['Status', lane.stuck ? html`<span class="pill bad">Stuck</span>` : lane.stage === 'done' ? 'Done' : 'Moving'],
+    <${Facts} rows=${[['Status', lane.stuck ? html`<${State} s="stuck"/>` : lane.stage === 'done' ? 'Done' : 'Moving'],
       ['Home', html`<a class="pr" href=${`#/project/${home.id}`}>${home.name}</a>`], ['Project', lane.project],
       ['Started', back(fleet, lane.started_at)], ['Last update', back(fleet, lane.updated_at)],
       lane.pr_url && ['Pull request', html`<a class="pr" href=${lane.pr_url} rel="noreferrer">Open</a>`]]}/>
     <h2 class="h2">Workers</h2>
-    ${ws.length ? html`<div class="rows">${ws.map(w => html`<div class="row" key=${w.id}><div class="t"><b>${w.agent} ${w.model}</b><small>${w.account} · active ${back(fleet, w.last_activity_at)}</small></div><span class="pill">${w.state}</span></div>`)}</div>` : html`<p class="none">No worker on this lane</p>`}
+    ${ws.length ? html`<div class="rows">${ws.map(w => html`<div class="row" key=${w.id}><div class="t"><b>${w.agent} ${w.model}</b><small>${w.account} · active ${back(fleet, w.last_activity_at)}</small></div><${State} s=${w.state}/></div>`)}</div>` : html`<p class="none">No worker on this lane</p>`}
     ${inc.length ? html`<h2 class="h2">Incidents</h2><div class="rows">${inc.map(i => html`<div class="row" key=${i.id}><div class="t"><b>${i.summary}</b><small>${i.severity} · ${back(fleet, i.at)}${i.resolved_at ? ' · resolved' : ''}</small></div></div>`)}</div>` : ''}
     ${mg.length ? html`<h2 class="h2">Merges</h2><div class="rows">${mg.map(m => html`<div class="row" key=${m.at}><div class="t"><b>${m.title}</b><small>${m.outcome} · checks ${m.checks} · ${back(fleet, m.at)}</small></div></div>`)}</div>` : ''}`
 }

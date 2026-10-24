@@ -30,3 +30,13 @@ test('empty lists and null runway are valid; a non-object is not', () => {
   assert.deepEqual(validateFleet([]), ['document: must be a JSON object'])
   assert.equal(sample().quota[3].runway_hours, null)
 })
+
+test('history is optional, and each sample needs a time and whole lane counts', () => {
+  const d = sample()
+  assert.ok(d.history.length >= 7 * 24, 'the sample carries 7 days of hourly samples')
+  delete d.history
+  assert.deepEqual(validateFleet(d), [])
+  d.history = [{ at: '2026-10-24T12:00:00Z', lanes: 2.5, stuck: -1 }, { lanes: 1, stuck: 0 }]
+  const bad = validateFleet(d)
+  for (const p of ['history[0].lanes', 'history[0].stuck', 'history[1].at']) assert.ok(bad.some(b => b.startsWith(p)), `${p} missing from ${JSON.stringify(bad)}`)
+})
