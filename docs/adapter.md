@@ -56,7 +56,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ### sample
 
-`at` (time), `lanes` (lanes in use at that time: not `done`, integer 0 or more), `stuck` (how many of them were stuck, integer 0 or more). Send one sample at a steady step (Lookout's own sample sends one an hour) covering at least the last 7 days; Overview plots the last 24 hours or 7 days of them. Merges per hour or day come from `merges`, so keep 7 days of those too.
+`at` (time), `lanes` (lanes in use at that time: not `done`, integer 0 or more), `stuck` (how many of them were stuck, integer 0 or more). Send one sample at a steady step (Lookout's own sample sends one an hour) covering at least the last 7 days; Overview plots the last 24 hours or 7 days of them. Merges per hour or day come from `merges`, so keep 30 days of those (Flow offers a 30 day range).
 
 ### device
 
