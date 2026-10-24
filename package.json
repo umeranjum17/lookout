@@ -7,6 +7,8 @@
   "type": "module",
   "engines": { "node": ">=20" },
   "scripts": {
+    "start": "node server.js",
+    "sample": "bin/run-sample.sh",
     "test": "node --test"
   }
 }
