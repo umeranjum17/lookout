@@ -2,6 +2,7 @@ import { html, render, useState, useEffect } from './vendor/preact-htm-3.1.1.js'
 import { back } from './ui.js'
 import { Overview } from './overview.js'
 import { Lanes } from './lanes.js'
+import { LanePage, ProjectPage } from './pages.js'
 
 const ICONS = {
   overview: 'M2.5 8.5L8 3l5.5 5.5M4 7.5v5.5h8V7.5',
@@ -18,21 +19,26 @@ const Icon = ({ n }) => html`<svg width="20" height="20" viewBox="0 0 16 16" fil
 const SCREENS = [['overview', 'Overview'], ['lanes', 'Lanes'], ['flow', 'Flow'], ['capacity', 'Capacity'], ['incidents', 'Incidents'], ['releases', 'Releases'], ['projects', 'Projects']]
 const DOCK = ['overview', 'lanes', 'flow', 'capacity', 'incidents']
 
-// #/<screen>?home=<id>
-const route = () => { const [p, q] = location.hash.slice(2).split('?'); return { view: SCREENS.find(([k]) => k === p)?.[0] || 'overview', home: new URLSearchParams(q).get('home') } }
+// #/<screen>?home=<id>, #/lane/<id>, #/project/<id>. A detail page sits under its list's nav entry.
+const route = () => {
+  const [p, q] = location.hash.slice(2).split('?'), [head, id] = p.split('/')
+  if ((head === 'lane' || head === 'project') && id) return { view: head, id: decodeURIComponent(id), nav: head + 's' }
+  const view = SCREENS.find(([k]) => k === p)?.[0] || 'overview'
+  return { view, nav: view, home: new URLSearchParams(q).get('home') }
+}
 
 function Projects({ fleet }) {
   return html`<div class="rows">${fleet.homes.map(h => {
     const n = fleet.lanes.filter(l => l.home === h.id && l.stage !== 'done').length
-    return html`<div class="row" key=${h.id}><div class="t"><b>${h.name}</b><small>${fleet.hosts.find(x => x.id === h.host)?.name} · beat ${back(fleet, h.supervision.last_beat_at)}</small></div>
-      <span class=${'pill ' + (h.supervision.state === 'ok' ? 'good' : 'warn')}>${h.supervision.state}</span><span class="v num">${n}/${h.lane_cap} lanes</span></div>`
+    return html`<a class="row" key=${h.id} href=${`#/project/${h.id}`}><div class="t"><b>${h.name}</b><small>${fleet.hosts.find(x => x.id === h.host)?.name} · beat ${back(fleet, h.supervision.last_beat_at)}</small></div>
+      <span class=${'pill ' + (h.supervision.state === 'ok' ? 'good' : 'warn')}>${h.supervision.state}</span><span class="v num">${n}/${h.lane_cap} lanes</span><span class="v">›</span></a>`
   })}</div>`
 }
 
 const Soon = ({ title }) => html`<div class="card empty"><b>${title} is not built yet</b><span>This screen arrives in a following release.</span></div>`
 
 function App() {
-  const [data, setData] = useState(null), [{ view, home }, setRoute] = useState(route())
+  const [data, setData] = useState(null), [{ view, nav, home, id }, setRoute] = useState(route())
   useEffect(() => {
     const on = () => setRoute(route()); addEventListener('hashchange', on)
     const t = new URLSearchParams(location.search).get('theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t
@@ -42,12 +48,12 @@ function App() {
   }, [])
   if (!data) return html`<div class="fail"><span class="sub">Loading</span></div>`
   if (data.error) return html`<div class="fail"><h1>Lookout cannot read the fleet</h1><p>${data.error}</p>${data.problems?.length ? html`<pre>${data.problems.join('\n')}</pre>` : ''}</div>`
-  const { fleet, version } = data, title = SCREENS.find(([k]) => k === view)[1]
-  const link = ([k, name], cls) => html`<a class=${cls} href=${'#/' + k} aria-current=${view === k ? 'page' : null}><${Icon} n=${k}/>${cls === 'nav' ? name : html`<span>${name}</span>`}</a>`
+  const { fleet, version } = data, title = view === 'lane' ? fleet.lanes.find(l => l.id === id)?.title || 'Lane' : view === 'project' ? fleet.homes.find(h => h.id === id)?.name || 'Project' : SCREENS.find(([k]) => k === view)[1]
+  const link = ([k, name], cls) => html`<a class=${cls} href=${'#/' + k} aria-current=${nav === k ? 'page' : null}><${Icon} n=${k}/>${cls === 'nav' ? name : html`<span>${name}</span>`}</a>`
   return html`<div class="app"><nav class="side" aria-label="Screens"><div class="brand"><span class="mark">L</span>Lookout</div>
       ${SCREENS.slice(0, 6).map(s => link(s, 'nav'))}<div class="sec"></div>${link(SCREENS[6], 'nav')}<div class="ver num">Lookout ${version}</div></nav>
     <main class="main"><h1>${title}</h1><p class="sub">${fleet.name} · updated ${back(fleet, fleet.generated_at)}</p>
-      ${view === 'overview' ? html`<${Overview} fleet=${fleet}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : html`<${Soon} title=${title}/>`}</main>
+      ${view === 'overview' ? html`<${Overview} fleet=${fleet}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : view === 'lane' ? html`<${LanePage} fleet=${fleet} id=${id}/>` : view === 'project' ? html`<${ProjectPage} fleet=${fleet} id=${id}/>` : html`<${Soon} title=${title}/>`}</main>
     <nav class="dock" aria-label="Screens">${SCREENS.filter(([k]) => DOCK.includes(k)).map(s => link(s, 'dk'))}</nav></div>`
 }
 render(html`<${App}/>`, document.getElementById('app'))
