@@ -53,7 +53,7 @@ function App() {
   if (data.error) return html`<div class="fail"><h1>Lookout cannot read the fleet</h1><p>${data.error}</p>${data.problems?.length ? html`<pre>${data.problems.join('\n')}</pre>` : ''}</div>`
   const { fleet, version } = data, title = view === 'lane' ? fleet.lanes.find(l => l.id === id)?.title || 'Lane' : view === 'project' ? fleet.homes.find(h => h.id === id)?.name || 'Project' : SCREENS.find(([k]) => k === view)[1]
   const link = ([k, name], cls) => html`<a class=${cls} href=${'#/' + k} aria-current=${nav === k ? 'page' : null}><${Icon} n=${k}/>${cls === 'nav' ? name : html`<span>${name}</span>`}</a>`
-  return html`<div class="app"><nav class="side" aria-label="Screens"><div class="brand"><span class="mark">L</span>Lookout</div>
+  return html`<div class="app"><nav class="side" aria-label="Screens"><div class="brand"><img class="logo" src="icon.svg" alt=""/>Lookout</div>
       ${SCREENS.slice(0, 6).map(s => link(s, 'nav'))}<div class="sec"></div>${link(SCREENS[6], 'nav')}<div class="ver num">Lookout ${version}</div></nav>
     <main class="main"><h1>${title}</h1><p class="sub">${fleet.name} · updated ${back(fleet, fleet.generated_at)}</p>
       ${view === 'overview' ? html`<${Overview} fleet=${fleet} range=${range}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'flow' ? html`<${Flow} fleet=${fleet} range=${range}/>` : view === 'capacity' ? html`<${Capacity} fleet=${fleet}/>` : view === 'incidents' ? html`<${Incidents} fleet=${fleet} show=${show} kind=${kind}/>` : view === 'releases' ? html`<${Releases} fleet=${fleet}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : view === 'lane' ? html`<${LanePage} fleet=${fleet} id=${id}/>` : html`<${ProjectPage} fleet=${fleet} id=${id}/>`}

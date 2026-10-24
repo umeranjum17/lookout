@@ -22,6 +22,11 @@ test('the server hands the app and the sample fleet with the package version', a
     assert.equal(page.status, 200)
     assert.match(await page.text(), /<title>Lookout<\/title>/)
     assert.equal((await fetch(`${s.base}/app.js`)).status, 200)
+    for (const [icon, type] of [['favicon.svg', 'image/svg+xml'], ['icon.svg', 'image/svg+xml'], ['icon-32.png', 'image/png'], ['icon-180.png', 'image/png']]) {
+      const res = await fetch(`${s.base}/${icon}`)
+      assert.equal(res.status, 200, icon)
+      assert.equal(res.headers.get('content-type'), type, icon)
+    }
   } finally { s.close() }
 })
 
