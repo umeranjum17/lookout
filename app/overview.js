@@ -7,13 +7,19 @@ const Meter = ({ pct, label }) => html`<div class="bar" role="img" aria-label=${
 export const RANGES = [['24h', 'Last 24 hours', DAY], ['7d', 'Last 7 days', 7 * DAY]]
 export const wday = (t, style = 'short') => new Date(t).toLocaleDateString('en', { weekday: style, timeZone: 'UTC' })
 
-// Merges per hour over 24 hours, per UTC day over 7 days: ok = merged, bad = failed or reverted.
+// The last n whole UTC days, today included, as [start, name, axis label]: 7 days label each weekday, longer runs every 7th day.
+export const lastDays = (to, n) => Array.from({ length: n }, (_, k) => {
+  const d = Math.floor(to / DAY) * DAY - (n - 1 - k) * DAY, today = k === n - 1
+  return [d, today ? 'today' : new Date(d).toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }),
+    today ? 'Today' : n <= 7 ? wday(d) : (n - 1 - k) % 7 ? undefined : new Date(d).toLocaleDateString('en', { day: 'numeric', month: 'short', timeZone: 'UTC' })]
+})
+
+// Merges per hour over 24 hours, per UTC day over 7 or 30 days: ok = merged, bad = failed or reverted.
 export function mergeBuckets(fleet, range, to) {
   const spans = range === '24h'
     ? Array.from({ length: 24 }, (_, k) => [to - (24 - k) * HOUR, to - (23 - k) * HOUR, k === 23 ? 'the last hour' : `${24 - k} to ${23 - k} hours ago`,
       { 0: '24h ago', 6: '18h', 12: '12h', 18: '6h', 23: 'now' }[k]])
-    : Array.from({ length: 7 }, (_, k) => { const d = Math.floor(to / DAY) * DAY - (6 - k) * DAY
-      return [d, d + DAY, k === 6 ? 'today' : new Date(d).toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'short', timeZone: 'UTC' }), k === 6 ? 'Today' : wday(d)] })
+    : lastDays(to, range === '30d' ? 30 : 7).map(([d, label, tick]) => [d, d + DAY, label, tick])
   return spans.map(([a, b, label, tick]) => {
     const ms = fleet.merges.filter(m => Date.parse(m.at) >= a && Date.parse(m.at) < b)
     return { ok: ms.filter(m => m.outcome === 'merged').length, bad: ms.filter(m => m.outcome !== 'merged').length, label, tick }

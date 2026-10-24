@@ -2,7 +2,7 @@
 
 Lookout shows whatever an adapter hands it. An adapter is anything that produces one JSON document in the `lookout.fleet.v1` shape below: a file on disk, a URL, or the output of a script. Lookout never reads your agent tools directly, so pointing it at your own fleet means writing (or generating) that one document.
 
-Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are non-empty strings, unique within their list. Every list may be empty; every list key must be present except `history`, which is optional.
+Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are non-empty strings, unique within their list. Every list may be empty; every list key must be present except `history` and `devices`, which are optional.
 
 ## Document
 
@@ -20,10 +20,11 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 | `releases` | release[] | Recent releases. |
 | `incidents` | incident[] | Things that went wrong. |
 | `history` | sample[] | Optional. Lane counts over time, for the Overview charts. |
+| `devices` | device[] | Optional. Test devices the lanes share, for Capacity. |
 
 ### host
 
-`id`, `name`, `cpu_pct`, `mem_pct`, `disk_pct`, `load1` (number), `sampled_at` (time).
+`id`, `name`, `cpu_pct`, `mem_pct`, `disk_pct`, `load1` (number), `sampled_at` (time), optional `gate`: `{ state: "open" | "closed", limit_pct }` (a memory gate: heavy jobs wait while memory is above `limit_pct`), optional `jobs`: `[{ kind, running, limit? }]` (heavy jobs on the host by kind, for example `emulator` or `gradle`, against an optional limit).
 
 ### home
 
@@ -55,11 +56,15 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ### sample
 
-`at` (time), `lanes` (lanes in use at that time: not `done`, integer 0 or more), `stuck` (how many of them were stuck, integer 0 or more). Send one sample at a steady step (Lookout's own sample sends one an hour) covering at least the last 7 days; Overview plots the last 24 hours or 7 days of them. Merges per hour or day come from `merges`, so keep 7 days of those too.
+`at` (time), `lanes` (lanes in use at that time: not `done`, integer 0 or more), `stuck` (how many of them were stuck, integer 0 or more). Send one sample at a steady step (Lookout's own sample sends one an hour) covering at least the last 7 days; Overview plots the last 24 hours or 7 days of them. Merges per hour or day come from `merges`, so keep 30 days of those (Flow offers a 30 day range).
+
+### device
+
+`id`, `name`, `kind` (for example `phone` or `tablet`), `host` (a host id), `state` (`free` | `busy` | `offline`), optional `lane` (a lane id: who holds it).
 
 ## References
 
-`home.host`, `lane.home`, `worker.lane`, `merge.lane`, `merge.home` and `incident.home`/`incident.lane` must name an existing id in the same document.
+`home.host`, `lane.home`, `worker.lane`, `merge.lane`, `merge.home`, `device.host`, `device.lane` and `incident.home`/`incident.lane` must name an existing id in the same document.
 
 ## Sources
 

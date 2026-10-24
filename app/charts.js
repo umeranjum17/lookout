@@ -48,9 +48,10 @@ export function Line({ points, from, to, max, cap, ticks, label, tip, unit = '',
 }
 
 // Stacked columns, one per bucket: buckets [{ ok, bad, label, tick? }]. ok sits on the baseline, bad on top of it.
+// Up to 12 columns carry their totals; more carry only the tallest, and the tooltip has the rest.
 export function Bars({ buckets, label, tip }) {
   const [ref, w] = useWidth(), n = buckets.length, band = (w - L - R) / n, bw = Math.min(24, band * .6)
-  const max = Math.max(4, ...buckets.map(b => b.ok + b.bad)), y = v => T + (1 - v / max) * (H - T - B), cx = k => L + band * (k + .5)
+  const top = Math.max(0, ...buckets.map(b => b.ok + b.bad)), max = Math.max(4, top), y = v => T + (1 - v / max) * (H - T - B), cx = k => L + band * (k + .5)
   const [i, on] = usePick(n, px => Math.max(0, Math.min(n - 1, Math.floor((px - L) / band))))
   const col = (k, v0, v1, round) => { const x0 = cx(k) - bw / 2, t = y(v1), b = y(v0) - (v0 ? 2 : 0), r = round ? Math.min(4, b - t) : 0
     return b - t < 1 ? '' : `M${x0},${b}V${t + r}Q${x0},${t} ${x0 + r},${t}H${x0 + bw - r}Q${x0 + bw},${t} ${x0 + bw},${t + r}V${b}Z` }
@@ -58,7 +59,7 @@ export function Bars({ buckets, label, tip }) {
       ${yTicks(max).map(v => html`<g key=${v}><line class="grid" x1=${L} x2=${w - R} y1=${y(v)} y2=${y(v)}/><text class="ax" x=${L - 8} y=${y(v) + 4} text-anchor="end">${v}</text></g>`)}
       ${buckets.map((b, k) => html`<g key=${k} class=${i === k ? 'on' : ''}>
         <path class="ok" d=${col(k, 0, b.ok, !b.bad)}/><path class="bad" d=${col(k, b.ok, b.ok + b.bad, true)}/>
-        ${b.ok + b.bad > 0 && html`<text class="val" x=${cx(k)} y=${y(b.ok + b.bad) - 6} text-anchor="middle">${b.ok + b.bad}</text>`}
+        ${b.ok + b.bad > 0 && (n <= 12 || b.ok + b.bad === top) && html`<text class="val" x=${cx(k)} y=${y(b.ok + b.bad) - 6} text-anchor="middle">${b.ok + b.bad}</text>`}
         ${b.tick && html`<text class="ax" x=${cx(k)} y=${H - 6} text-anchor=${k === 0 && n > 12 ? 'start' : k === n - 1 && n > 12 ? 'end' : 'middle'}>${b.tick}</text>`}</g>`)}
     </svg>`}${i != null && html`<${Tip} x=${cx(i)} w=${w} value=${tip(buckets[i])} label=${buckets[i].label}/>`}</div>`
 }

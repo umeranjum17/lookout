@@ -28,7 +28,7 @@ test('a document breaking the contract is refused with the path of each problem'
 
 test('empty lists and null runway are valid; a non-object is not', () => {
   const d = sample()
-  for (const k of ['hosts', 'homes', 'lanes', 'workers', 'quota', 'merges', 'releases', 'incidents']) d[k] = []
+  for (const k of ['hosts', 'homes', 'lanes', 'workers', 'quota', 'merges', 'releases', 'incidents', 'devices']) d[k] = []
   assert.deepEqual(validateFleet(d), [])
   assert.deepEqual(validateFleet([]), ['document: must be a JSON object'])
   assert.equal(sample().quota[3].runway_hours, null)
@@ -42,4 +42,18 @@ test('history is optional, and each sample needs a time and whole lane counts', 
   d.history = [{ at: '2026-10-24T12:00:00Z', lanes: 2.5, stuck: -1 }, { lanes: 1, stuck: 0 }]
   const bad = validateFleet(d)
   for (const p of ['history[0].lanes', 'history[0].stuck', 'history[1].at']) assert.ok(bad.some(b => b.startsWith(p)), `${p} missing from ${JSON.stringify(bad)}`)
+})
+
+test('a host gate, its jobs and the devices are checked when sent', () => {
+  const d = sample()
+  d.hosts[0].gate = { state: 'ajar', limit_pct: 70 }
+  d.hosts[1].jobs = [{ kind: 'gradle', running: -1 }]
+  d.devices[0].lane = 'nope'
+  d.devices[1].host = 'nowhere'
+  const bad = validateFleet(d)
+  for (const p of ['hosts[0].gate', 'hosts[1].jobs', 'devices[0].lane: no lanes "nope"', 'devices[1].host: no hosts "nowhere"']) assert.ok(bad.some(b => b.startsWith(p)), `${p} missing from ${JSON.stringify(bad)}`)
+  delete d.devices
+  delete d.hosts[0].gate
+  delete d.hosts[1].jobs
+  assert.deepEqual(validateFleet(d), [])
 })

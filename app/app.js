@@ -3,6 +3,7 @@ import { back } from './ui.js'
 import { Overview } from './overview.js'
 import { Lanes } from './lanes.js'
 import { Flow } from './flow.js'
+import { Capacity } from './capacity.js'
 import { LanePage, ProjectPage } from './pages.js'
 
 const ICONS = {
@@ -20,7 +21,7 @@ const Icon = ({ n }) => html`<svg width="20" height="20" viewBox="0 0 16 16" fil
 const SCREENS = [['overview', 'Overview'], ['lanes', 'Lanes'], ['flow', 'Flow'], ['capacity', 'Capacity'], ['incidents', 'Incidents'], ['releases', 'Releases'], ['projects', 'Projects']]
 const DOCK = ['overview', 'lanes', 'flow', 'capacity', 'incidents']
 
-// #/<screen>?home=<id>&range=<24h|7d>, #/lane/<id>, #/project/<id>. A detail page sits under its list's nav entry.
+// #/<screen>?home=<id>&range=<24h|7d|30d>, #/lane/<id>, #/project/<id>. A detail page sits under its list's nav entry.
 const route = () => {
   const [p, q] = location.hash.slice(2).split('?'), [head, id] = p.split('/')
   if ((head === 'lane' || head === 'project') && id) return { view: head, id: decodeURIComponent(id), nav: head + 's' }
@@ -55,7 +56,7 @@ function App() {
   return html`<div class="app"><nav class="side" aria-label="Screens"><div class="brand"><span class="mark">L</span>Lookout</div>
       ${SCREENS.slice(0, 6).map(s => link(s, 'nav'))}<div class="sec"></div>${link(SCREENS[6], 'nav')}<div class="ver num">Lookout ${version}</div></nav>
     <main class="main"><h1>${title}</h1><p class="sub">${fleet.name} · updated ${back(fleet, fleet.generated_at)}</p>
-      ${view === 'overview' ? html`<${Overview} fleet=${fleet} range=${range}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'flow' ? html`<${Flow} fleet=${fleet}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : view === 'lane' ? html`<${LanePage} fleet=${fleet} id=${id}/>` : view === 'project' ? html`<${ProjectPage} fleet=${fleet} id=${id}/>` : html`<${Soon} title=${title}/>`}</main>
+      ${view === 'overview' ? html`<${Overview} fleet=${fleet} range=${range}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'flow' ? html`<${Flow} fleet=${fleet} range=${range}/>` : view === 'capacity' ? html`<${Capacity} fleet=${fleet}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : view === 'lane' ? html`<${LanePage} fleet=${fleet} id=${id}/>` : view === 'project' ? html`<${ProjectPage} fleet=${fleet} id=${id}/>` : html`<${Soon} title=${title}/>`}</main>
     <nav class="dock" aria-label="Screens">${SCREENS.filter(([k]) => DOCK.includes(k)).map(s => link(s, 'dk'))}</nav></div>`
 }
 render(html`<${App}/>`, document.getElementById('app'))
