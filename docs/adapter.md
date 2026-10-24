@@ -2,7 +2,7 @@
 
 Lookout shows whatever an adapter hands it. An adapter is anything that produces one JSON document in the `lookout.fleet.v1` shape below: a file on disk, a URL, or the output of a script. Lookout never reads your agent tools directly, so pointing it at your own fleet means writing (or generating) that one document.
 
-Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are non-empty strings, unique within their list. Every list may be empty; every list key must be present except `history` and `devices`, which are optional.
+Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are non-empty strings, unique within their list. Every list may be empty; every list key must be present except `history`, `devices` and `plans`, which are optional.
 
 ## Document
 
@@ -21,6 +21,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 | `incidents` | incident[] | Things that went wrong. |
 | `history` | sample[] | Optional. Lane counts over time, for the Overview charts. |
 | `devices` | device[] | Optional. Test devices the lanes share, for Capacity. |
+| `plans` | plan[] | Optional. The next release each repository is working towards, for Releases. |
 
 ### host
 
@@ -48,7 +49,11 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ### release
 
-`repo`, `version`, `at` (time), `channel` (string), `status` (`shipped` | `pending` | `failed`).
+`repo`, `version`, `at` (time), `channel` (string), `status` (`shipped` | `pending` | `failed`), optional `url` (the release page), optional `source` (where the adapter confirmed it, for example `GitHub` or `npm`). Releases treats the newest `shipped` release of a repository as live.
+
+### plan
+
+`repo`, `version` (the next version), optional `home` (a home id), optional `target` (time it should ship), `items` (`[{ title, done }]`, the work it carries; `done` is a boolean). A plan usually comes from a release plan file the adapter reads, for example one per home.
 
 ### incident
 
@@ -64,7 +69,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ## References
 
-`home.host`, `lane.home`, `worker.lane`, `merge.lane`, `merge.home`, `device.host`, `device.lane` and `incident.home`/`incident.lane` must name an existing id in the same document.
+`home.host`, `lane.home`, `worker.lane`, `merge.lane`, `merge.home`, `device.host`, `device.lane`, `plan.home` and `incident.home`/`incident.lane` must name an existing id in the same document.
 
 ## Sources
 

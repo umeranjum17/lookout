@@ -13,8 +13,8 @@ export const hm = ms => { const m = Math.round(ms / 60e3); return m < 60 ? `${m}
 export const STAGES = [['queued', 'Queued'], ['working', 'Working'], ['review', 'Review'], ['merging', 'Merging'], ['done', 'Done']]
 export const open = fleet => fleet.lanes.filter(l => l.stage !== 'done')
 export const slotsOf = fleet => fleet.homes.reduce((n, h) => n + h.lane_cap, 0)
-// A state as a chip with a coloured dot: a lane (stuck wins, else its first live worker's state), a gate, a device or a severity.
-const TONE = { stuck: 'bad', waiting: 'warn', working: 'good', open: 'good', closed: 'warn', free: 'good', busy: 'warn', offline: 'bad', crit: 'bad', warn: 'warn' }
+// A state as a chip with a coloured dot: a lane (stuck wins, else its first live worker's state), a gate, a device, a severity or a release.
+const TONE = { stuck: 'bad', waiting: 'warn', working: 'good', open: 'good', closed: 'warn', free: 'good', busy: 'warn', offline: 'bad', crit: 'bad', warn: 'warn', shipped: 'good', pending: 'warn', failed: 'bad' }
 export const State = ({ s, label }) => s ? html`<span class="pill state" data-tone=${TONE[s] || ''}><i></i>${label || s[0].toUpperCase() + s.slice(1)}</span>` : ''
 export const back = (fleet, t) => { const a = when(fleet, t); return a === 'now' ? 'just now' : `${a} ago` }
 // Lanes in board order: by stage, stuck first, longest-waiting first. The lane page's prev and next walk this order.
