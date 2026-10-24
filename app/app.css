@@ -149,3 +149,14 @@ path.ok{fill:var(--acc)}path.bad{fill:var(--red)}g.on path{opacity:.75}
 .band{fill:var(--ink);opacity:.035}.key .hi{background:var(--ink-3)}.ln.hi{stroke:var(--ink-3)}
 .split{display:flex;gap:2px;height:8px;margin:12px 0 8px}.split i{background:var(--acc);border-radius:4px}.split .re{background:var(--ink-3)}
 .hm small{grid-column:1/-1;font-size:12px;color:var(--ink-3);font-weight:450}
+
+/* capacity: quota runway per account, host load with its gate and jobs */
+.bar{position:relative}.bar i.warn{background:var(--yellow)}.bar i.bad{background:var(--red)}
+.bar .mark{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--ink-2)}
+.qg h3{font-size:12px;font-weight:600;color:var(--ink-3);margin:12px 0 4px}.qg:first-of-type h3{margin-top:0}
+.qr{display:grid;grid-template-columns:1fr auto;gap:4px 8px;padding:8px 0;font-size:13px}
+.qr .bar{grid-column:1/-1}.qr small{grid-column:1/-1;font-size:12px;color:var(--ink-3)}.qr small.warn,.qr small.bad{color:var(--ink-2);font-weight:550}
+.qr .qn b{font-weight:600}.qr .num{color:var(--ink-2)}
+.hosts{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}.host{display:flex;flex-direction:column;gap:4px}.host>small{font-size:12px;color:var(--ink-3)}
+.gate{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.g.top{align-items:start}
