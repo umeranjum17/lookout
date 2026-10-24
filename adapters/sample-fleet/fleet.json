@@ -1,0 +1,50 @@
+{
+  "schema": "lookout.fleet.v1",
+  "generated_at": "2026-10-24T12:00:00Z",
+  "name": "Sample fleet",
+  "hosts": [
+    { "id": "atlas", "name": "atlas", "cpu_pct": 62, "mem_pct": 71, "disk_pct": 48, "load1": 3.4, "sampled_at": "2026-10-24T11:59:30Z" },
+    { "id": "boreas", "name": "boreas", "cpu_pct": 18, "mem_pct": 35, "disk_pct": 22, "load1": 0.7, "sampled_at": "2026-10-24T11:59:30Z" }
+  ],
+  "homes": [
+    { "id": "web", "name": "Web team", "host": "atlas", "lane_cap": 4, "supervision": { "state": "ok", "last_beat_at": "2026-10-24T11:58:10Z" } },
+    { "id": "infra", "name": "Infra team", "host": "boreas", "lane_cap": 3, "supervision": { "state": "stale", "last_beat_at": "2026-10-24T11:21:00Z", "note": "no beat for 39 minutes" } }
+  ],
+  "lanes": [
+    { "id": "web-101", "home": "web", "title": "Dark mode for the settings page", "project": "storefront", "stage": "working", "stuck": false, "started_at": "2026-10-24T09:10:00Z", "updated_at": "2026-10-24T11:55:00Z" },
+    { "id": "web-102", "home": "web", "title": "Fix cart rounding on discounts", "project": "storefront", "stage": "review", "stuck": false, "started_at": "2026-10-24T08:00:00Z", "updated_at": "2026-10-24T11:40:00Z", "pr_url": "https://example.com/storefront/pull/412" },
+    { "id": "web-103", "home": "web", "title": "Upgrade the image resizer", "project": "media", "stage": "working", "stuck": true, "started_at": "2026-10-24T06:30:00Z", "updated_at": "2026-10-24T09:05:00Z" },
+    { "id": "web-104", "home": "web", "title": "Add order export", "project": "storefront", "stage": "queued", "stuck": false, "started_at": "2026-10-24T11:50:00Z", "updated_at": "2026-10-24T11:50:00Z" },
+    { "id": "infra-201", "home": "infra", "title": "Rotate the build cache", "project": "ci", "stage": "merging", "stuck": false, "started_at": "2026-10-24T07:45:00Z", "updated_at": "2026-10-24T11:30:00Z", "pr_url": "https://example.com/ci/pull/88" },
+    { "id": "infra-202", "home": "infra", "title": "Move logs to cold storage", "project": "ci", "stage": "done", "stuck": false, "started_at": "2026-10-23T14:00:00Z", "updated_at": "2026-10-24T10:20:00Z", "pr_url": "https://example.com/ci/pull/85" }
+  ],
+  "workers": [
+    { "id": "w-1", "lane": "web-101", "agent": "claude", "model": "sonnet", "account": "pool-a", "state": "working", "started_at": "2026-10-24T09:10:00Z", "last_activity_at": "2026-10-24T11:59:00Z" },
+    { "id": "w-2", "lane": "web-102", "agent": "codex", "model": "gpt", "account": "pool-b", "state": "waiting", "started_at": "2026-10-24T08:00:00Z", "last_activity_at": "2026-10-24T11:40:00Z" },
+    { "id": "w-3", "lane": "web-103", "agent": "claude", "model": "haiku", "account": "pool-a", "state": "idle", "started_at": "2026-10-24T06:30:00Z", "last_activity_at": "2026-10-24T09:05:00Z" },
+    { "id": "w-4", "lane": "infra-201", "agent": "claude", "model": "sonnet", "account": "pool-c", "state": "working", "started_at": "2026-10-24T07:45:00Z", "last_activity_at": "2026-10-24T11:57:00Z" },
+    { "id": "w-5", "lane": "infra-202", "agent": "opencode", "model": "glm", "account": "pool-b", "state": "exited", "started_at": "2026-10-23T14:00:00Z", "last_activity_at": "2026-10-24T10:20:00Z" }
+  ],
+  "quota": [
+    { "account": "pool-a", "provider": "anthropic", "window": "5h", "used_pct": 81, "resets_at": "2026-10-24T14:00:00Z", "runway_hours": 0.6 },
+    { "account": "pool-a", "provider": "anthropic", "window": "week", "used_pct": 46, "resets_at": "2026-10-28T00:00:00Z", "runway_hours": 61 },
+    { "account": "pool-b", "provider": "openai", "window": "week", "used_pct": 22, "resets_at": "2026-10-27T00:00:00Z", "runway_hours": 140 },
+    { "account": "pool-c", "provider": "anthropic", "window": "week", "used_pct": 94, "resets_at": "2026-10-26T00:00:00Z", "runway_hours": null }
+  ],
+  "merges": [
+    { "at": "2026-10-24T10:20:00Z", "repo": "ci", "title": "Move logs to cold storage", "outcome": "merged", "checks": "pass", "lane": "infra-202", "pr_url": "https://example.com/ci/pull/85" },
+    { "at": "2026-10-24T09:00:00Z", "repo": "storefront", "title": "Update the footer links", "outcome": "merged", "checks": "pass" },
+    { "at": "2026-10-23T17:30:00Z", "repo": "media", "title": "Switch thumbnails to webp", "outcome": "reverted", "checks": "pass" },
+    { "at": "2026-10-23T15:10:00Z", "repo": "storefront", "title": "Retry failed payments", "outcome": "failed", "checks": "fail" }
+  ],
+  "releases": [
+    { "repo": "storefront", "version": "2.14.0", "at": "2026-10-24T08:30:00Z", "channel": "production", "status": "shipped" },
+    { "repo": "media", "version": "1.9.2", "at": "2026-10-23T18:00:00Z", "channel": "production", "status": "failed" },
+    { "repo": "ci", "version": "0.8.0", "at": "2026-10-24T11:45:00Z", "channel": "staging", "status": "pending" }
+  ],
+  "incidents": [
+    { "id": "inc-1", "at": "2026-10-24T11:21:00Z", "severity": "warn", "summary": "Infra team supervisor stopped beating", "home": "infra" },
+    { "id": "inc-2", "at": "2026-10-24T09:05:00Z", "severity": "crit", "summary": "Image resizer upgrade stuck on a failing build", "home": "web", "lane": "web-103" },
+    { "id": "inc-3", "at": "2026-10-23T18:10:00Z", "severity": "info", "summary": "Thumbnail release rolled back", "resolved_at": "2026-10-23T19:00:00Z" }
+  ]
+}
