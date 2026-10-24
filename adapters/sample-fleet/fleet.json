@@ -76,9 +76,16 @@
     { "at": "2026-09-25T16:00:00Z", "repo": "storefront", "title": "Tax on shipping", "outcome": "reverted", "checks": "pass", "started_at": "2026-09-25T05:00:00Z", "home": "web", "rework": 1 }
   ],
   "releases": [
-    { "repo": "storefront", "version": "2.14.0", "at": "2026-10-24T08:30:00Z", "channel": "production", "status": "shipped" },
-    { "repo": "media", "version": "1.9.2", "at": "2026-10-23T18:00:00Z", "channel": "production", "status": "failed" },
-    { "repo": "ci", "version": "0.8.0", "at": "2026-10-24T11:45:00Z", "channel": "staging", "status": "pending" }
+    { "repo": "storefront", "version": "2.14.0", "at": "2026-10-24T08:30:00Z", "channel": "production", "status": "shipped", "url": "https://example.com/storefront/releases/2.14.0", "source": "GitHub" },
+    { "repo": "media", "version": "1.9.2", "at": "2026-10-23T18:00:00Z", "channel": "production", "status": "failed", "url": "https://example.com/media/releases/1.9.2", "source": "GitHub" },
+    { "repo": "ci", "version": "0.8.0", "at": "2026-10-24T11:45:00Z", "channel": "staging", "status": "pending" },
+    { "repo": "media", "version": "1.9.1", "at": "2026-10-20T16:00:00Z", "channel": "production", "status": "shipped", "url": "https://example.com/media/releases/1.9.1", "source": "npm" },
+    { "repo": "storefront", "version": "2.13.1", "at": "2026-10-17T10:00:00Z", "channel": "production", "status": "shipped", "url": "https://example.com/storefront/releases/2.13.1", "source": "GitHub" },
+    { "repo": "ci", "version": "0.7.2", "at": "2026-10-15T09:30:00Z", "channel": "production", "status": "shipped", "source": "npm" },
+    { "repo": "storefront", "version": "2.13.0", "at": "2026-10-10T14:00:00Z", "channel": "production", "status": "shipped", "url": "https://example.com/storefront/releases/2.13.0", "source": "GitHub" },
+    { "repo": "media", "version": "1.9.0", "at": "2026-10-08T12:00:00Z", "channel": "production", "status": "failed", "source": "npm" },
+    { "repo": "media", "version": "1.8.4", "at": "2026-10-02T15:30:00Z", "channel": "production", "status": "shipped", "source": "npm" },
+    { "repo": "storefront", "version": "2.12.0", "at": "2026-09-29T11:00:00Z", "channel": "production", "status": "shipped", "source": "GitHub" }
   ],
   "incidents": [
     { "id": "inc-1", "at": "2026-10-24T11:21:00Z", "severity": "warn", "kind": "supervision", "summary": "Infra team supervisor stopped beating", "home": "infra" },
@@ -143,5 +150,10 @@
     { "id": "pixel-8", "name": "Pixel 8", "kind": "phone", "host": "atlas", "state": "busy", "lane": "web-101" },
     { "id": "ipad-air", "name": "iPad Air", "kind": "tablet", "host": "atlas", "state": "free" },
     { "id": "galaxy-a54", "name": "Galaxy A54", "kind": "phone", "host": "boreas", "state": "offline" }
+  ],
+  "plans": [
+    { "repo": "storefront", "version": "2.15.0", "home": "web", "target": "2026-10-30T00:00:00Z", "items": [{ "title": "Order export", "done": false }, { "title": "Dark mode for settings", "done": false }, { "title": "Cart rounding fix", "done": true }, { "title": "Gift wrap option", "done": true }, { "title": "Stock alerts", "done": true }] },
+    { "repo": "media", "version": "1.10.0", "home": "web", "target": "2026-10-23T00:00:00Z", "items": [{ "title": "New image resizer", "done": false }, { "title": "HEIC uploads", "done": true }, { "title": "Watermark option", "done": false }] },
+    { "repo": "ci", "version": "0.9.0", "home": "infra", "items": [{ "title": "Rotate the build cache", "done": false }, { "title": "Logs in cold storage", "done": true }] }
   ]
 }
