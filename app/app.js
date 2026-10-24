@@ -2,6 +2,7 @@ import { html, render, useState, useEffect } from './vendor/preact-htm-3.1.1.js'
 import { back } from './ui.js'
 import { Overview } from './overview.js'
 import { Lanes } from './lanes.js'
+import { Flow } from './flow.js'
 import { LanePage, ProjectPage } from './pages.js'
 
 const ICONS = {
@@ -54,7 +55,7 @@ function App() {
   return html`<div class="app"><nav class="side" aria-label="Screens"><div class="brand"><span class="mark">L</span>Lookout</div>
       ${SCREENS.slice(0, 6).map(s => link(s, 'nav'))}<div class="sec"></div>${link(SCREENS[6], 'nav')}<div class="ver num">Lookout ${version}</div></nav>
     <main class="main"><h1>${title}</h1><p class="sub">${fleet.name} · updated ${back(fleet, fleet.generated_at)}</p>
-      ${view === 'overview' ? html`<${Overview} fleet=${fleet} range=${range}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : view === 'lane' ? html`<${LanePage} fleet=${fleet} id=${id}/>` : view === 'project' ? html`<${ProjectPage} fleet=${fleet} id=${id}/>` : html`<${Soon} title=${title}/>`}</main>
+      ${view === 'overview' ? html`<${Overview} fleet=${fleet} range=${range}/>` : view === 'lanes' ? html`<${Lanes} fleet=${fleet} home=${home}/>` : view === 'flow' ? html`<${Flow} fleet=${fleet}/>` : view === 'projects' ? html`<${Projects} fleet=${fleet}/>` : view === 'lane' ? html`<${LanePage} fleet=${fleet} id=${id}/>` : view === 'project' ? html`<${ProjectPage} fleet=${fleet} id=${id}/>` : html`<${Soon} title=${title}/>`}</main>
     <nav class="dock" aria-label="Screens">${SCREENS.filter(([k]) => DOCK.includes(k)).map(s => link(s, 'dk'))}</nav></div>`
 }
 render(html`<${App}/>`, document.getElementById('app'))

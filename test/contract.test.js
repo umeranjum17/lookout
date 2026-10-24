@@ -18,8 +18,11 @@ test('a document breaking the contract is refused with the path of each problem'
   d.homes[1].id = 'web'
   d.quota[0].used_pct = 140
   d.incidents[0].at = 'yesterday'
+  d.merges[0].rework = -1
+  d.merges[1].home = 'nope'
+  d.lanes[1].waiting_on = ''
   const bad = validateFleet(d)
-  for (const p of ['schema:', 'hosts: must be a list', 'lanes[0].stage', 'workers[0].lane: no lanes "nope"', 'homes[1].id: duplicate "web"', 'quota[0].used_pct', 'incidents[0].at'])
+  for (const p of ['schema:', 'hosts: must be a list', 'lanes[0].stage', 'workers[0].lane: no lanes "nope"', 'homes[1].id: duplicate "web"', 'quota[0].used_pct', 'incidents[0].at', 'merges[0].rework', 'merges[1].home: no homes "nope"', 'lanes[1].waiting_on'])
     assert.ok(bad.some(b => b.startsWith(p)), `${p} missing from ${JSON.stringify(bad)}`)
 })
 

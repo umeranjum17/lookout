@@ -146,3 +146,6 @@ path.ok{fill:var(--acc)}path.bad{fill:var(--red)}g.on path{opacity:.75}
 .pill.state[data-tone=bad] i{background:var(--red)}.pill.state[data-tone=warn] i{background:var(--yellow)}.pill.state[data-tone=good] i{background:var(--green)}
 @media (max-width:1100px){.g-a,.g-b{grid-template-columns:1fr}}
 @media (max-width:900px){.chip{min-height:44px}.lane .pr{min-height:44px;margin:-12px -14px;padding:0 14px}.big{font-size:32px;line-height:40px}}
+.band{fill:var(--ink);opacity:.035}.key .hi{background:var(--ink-3)}.ln.hi{stroke:var(--ink-3)}
+.split{display:flex;gap:2px;height:8px;margin:12px 0 8px}.split i{background:var(--acc);border-radius:4px}.split .re{background:var(--ink-3)}
+.hm small{grid-column:1/-1;font-size:12px;color:var(--ink-3);font-weight:450}
