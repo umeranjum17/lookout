@@ -77,3 +77,33 @@ ul{list-style:none}
   .dock a[aria-current=page]{background:var(--acc);color:var(--on-acc)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* sections, filters, lanes */
+.h2{font-size:13px;line-height:20px;font-weight:600;color:var(--ink-2);margin:24px 4px 8px}
+.h2 .n{color:var(--ink-3);font-weight:450}
+.go{margin-top:16px}
+.load{display:flex;flex-direction:column;gap:4px;width:140px;font-size:12px;color:var(--ink-3)}
+.row .load .bar{height:6px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:8px;scrollbar-width:none}
+.chip{flex:none;display:flex;align-items:center;min-height:36px;padding:0 14px;border-radius:18px;background:var(--card);box-shadow:var(--edge);font-size:13px;font-weight:550;color:var(--ink-2);white-space:nowrap}
+.chip.on{background:var(--acc);color:var(--on-acc)}
+.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;align-items:start}
+.board .h2{margin:8px 4px}
+.board ul{display:flex;flex-direction:column;gap:8px}
+.lane{display:flex;flex-direction:column;gap:4px;background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:var(--edge)}
+.lane.stuck{box-shadow:inset 3px 0 0 var(--red),var(--edge)}
+.lane b{font-weight:550}
+.lane small{font-size:12px;color:var(--ink-3)}
+.lane .wk.good{color:var(--green)}.lane .wk.warn{color:var(--yellow)}
+.lane .meta{display:flex;align-items:center;gap:8px;margin-top:4px;font-size:12px}
+.lane .meta .v{margin-left:auto;font-size:12px;color:var(--ink-3)}
+.pill.bad{color:var(--red)}
+.pr{font-weight:550;text-decoration:underline;text-underline-offset:2px;min-height:20px}
+.none{padding:12px 4px;font-size:12px;color:var(--ink-3)}
+@media (max-width:1100px){.board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:900px){
+  .board{grid-template-columns:1fr}
+  .row .load{width:96px}
+}
+@media (min-width:1100px){.tiles{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media (max-width:900px){.tiles .tile:nth-child(5){grid-column:1/-1}}
