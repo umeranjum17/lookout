@@ -59,7 +59,7 @@ export function Overview({ fleet, range }) {
             <${Meter} pct=${n / h.lane_cap * 100} label=${`${h.name}: ${n} of ${h.lane_cap} lanes`}/></a>`
         })}</div></div>
       <div class="card chart"><div class="ch"><b>Lanes in use</b><small>${words}</small></div>
-        ${points.length > 1 ? html`<${Line} points=${points} from=${from} to=${to} max=${Math.max(slots, ...points.map(p => p.v))} cap=${slots} ticks=${ticks} bands=${bands}
+        ${points.length > 1 ? html`<${Line} points=${points} from=${from} to=${to} max=${Math.max(slots, ...points.map(p => p.v))} cap=${slots} ticks=${ticks} bands=${bands} fill
           label=${`Lanes in use, ${words}: ${points.map(p => p.v).join(', ')}; ${slots} slots`} tip=${p => `${p.v} of ${slots} lanes${p.t0 != null ? ' on average' : ''}`}/>`
           : html`<p class="none">This source sends no lane history</p>`}</div>
     </div>

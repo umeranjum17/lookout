@@ -6,12 +6,12 @@ import { useState, useRef, useLayoutEffect } from './vendor/preact-htm-3.1.1.js'
 const H = 200, L = 28, R = 12, T = 20, B = 24
 
 function useWidth() {
-  const ref = useRef(), [w, setW] = useState(0)
+  const ref = useRef(), [[w, h], setSize] = useState([0, 0])
   useLayoutEffect(() => {
-    const ro = new ResizeObserver(([e]) => setW(Math.round(e.contentRect.width)))
+    const ro = new ResizeObserver(([e]) => setSize([Math.round(e.contentRect.width), Math.round(e.contentRect.height)]))
     ro.observe(ref.current); return () => ro.disconnect()
   }, [])
-  return [ref, w]
+  return [ref, w, h]
 }
 
 // The pointer (or arrow keys) picks the nearest index; the tooltip shows it.
@@ -29,13 +29,14 @@ const yTicks = max => { const s = max <= 8 ? 2 : Math.ceil(max / 4); return Arra
 
 // A level over time, against an optional cap: points [{ t, v, hi?, t0?, t1?, label }], ticks [{ t, label }]. hi, when given, is a
 // second, quieter line above v (a p90 over a p50); a point with t0 and t1 holds its level from t0 to t1 (a step line).
-// bands [[from, to]] shade spans such as alternate days; unit follows each y-axis number.
-export function Line({ points, from, to, max, cap, ticks, label, tip, unit = '', bands = [] }) {
-  const [ref, w] = useWidth(), x = t => L + (t - from) / (to - from) * (w - L - R), y = v => T + (1 - v / max) * (H - T - B)
+// bands [[from, to]] shade spans such as alternate days; unit follows each y-axis number. fill grows the chart to the height its card
+// leaves it, so a card stretched by its neighbour shows a taller chart rather than a blank block.
+export function Line({ points, from, to, max, cap, ticks, label, tip, unit = '', bands = [], fill = false }) {
+  const [ref, w, fh] = useWidth(), H = fill ? Math.max(200, fh) : 200, x = t => L + (t - from) / (to - from) * (w - L - R), y = v => T + (1 - v / max) * (H - T - B)
   const near = px => points.reduce((b, p, k) => Math.abs(x(p.t) - px) < Math.abs(x(points[b].t) - px) ? k : b, 0)
   const [i, on] = usePick(points.length, near), p = points[i], end = points.at(-1)
   const path = f => points.map((q, k) => `${k ? 'L' : 'M'}${x(q.t0 ?? q.t).toFixed(1)},${y(f(q)).toFixed(1)}${q.t1 != null ? `H${x(q.t1).toFixed(1)}` : ''}`).join(''), d = path(q => q.v)
-  return html`<div class="plot" ref=${ref}>${w > 0 && html`<svg width=${w} height=${H} role="img" aria-label=${label} ...${on}>
+  return html`<div class=${'plot' + (fill ? ' fill' : '')} ref=${ref}>${w > 0 && html`<svg width=${w} height=${H} role="img" aria-label=${label} ...${on}>
       ${bands.map(([a, b]) => html`<rect class="band" key=${a} x=${x(a)} y=${T} width=${x(b) - x(a)} height=${y(0) - T}/>`)}
       ${yTicks(max).map(v => html`<g key=${v}><line class="grid" x1=${L} x2=${w - R} y1=${y(v)} y2=${y(v)}/><text class="ax" x=${L - 8} y=${y(v) + 4} text-anchor="end">${v}${unit}</text></g>`)}
       ${cap && html`<line class="cap" x1=${L} x2=${w - R} y1=${y(cap)} y2=${y(cap)}/><text class="ax" x=${w - R} y=${y(cap) - 6} text-anchor="end">${cap} slots</text>`}
