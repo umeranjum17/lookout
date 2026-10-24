@@ -8,7 +8,7 @@ import { loadFleet, SourceError } from './lib/source.js'
 const root = fileURLToPath(new URL('.', import.meta.url))
 const appDir = join(root, 'app')
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8',
-  '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.json': 'application/json' }
+  '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.json': 'application/json' }
 export const version = JSON.parse(await readFile(join(root, 'package.json'), 'utf8')).version
 const HEADERS = { 'content-security-policy': "default-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'", 'x-content-type-options': 'nosniff' }
 
