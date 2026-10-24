@@ -31,7 +31,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ### lane
 
-`id`, `home` (a home id), `title`, `project`, `stage` (`queued` | `working` | `review` | `merging` | `done`), `stuck` (boolean), `started_at` (time), `updated_at` (time), optional `pr_url` (string).
+`id`, `home` (a home id), `title`, `project`, `stage` (`queued` | `working` | `review` | `merging` | `done`), `stuck` (boolean), `started_at` (time), `updated_at` (time), optional `pr_url` (string), optional `waiting_on` (what the lane waits for, in plain words, for example `review` or `a free slot`; Flow groups waiting lanes by it).
 
 ### worker
 
@@ -43,7 +43,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ### merge
 
-`at` (time), `repo`, `title`, `outcome` (`merged` | `failed` | `reverted`), `checks` (`pass` | `fail`), optional `lane` (a lane id), optional `pr_url`.
+`at` (time), `repo`, `title`, `outcome` (`merged` | `failed` | `reverted`), `checks` (`pass` | `fail`), optional `lane` (a lane id), optional `pr_url`, optional `started_at` (time the work began; Flow's time to merge is `at` minus this), optional `home` (a home id, for time to merge per home), optional `rework` (integer: how many times the work went back from review or checks to working before it merged; 0 is a first pass).
 
 ### release
 
@@ -59,7 +59,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ## References
 
-`home.host`, `lane.home`, `worker.lane`, `merge.lane` and `incident.home`/`incident.lane` must name an existing id in the same document.
+`home.host`, `lane.home`, `worker.lane`, `merge.lane`, `merge.home` and `incident.home`/`incident.lane` must name an existing id in the same document.
 
 ## Sources
 

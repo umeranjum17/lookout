@@ -27,19 +27,23 @@ function usePick(n, at) {
 const Tip = ({ x, w, value, label }) => html`<div class="tip" style=${{ left: `${Math.max(56, Math.min(w - 56, x))}px` }}><b class="num">${value}</b><span>${label}</span></div>`
 const yTicks = max => { const s = max <= 8 ? 2 : Math.ceil(max / 4); return Array.from({ length: Math.floor(max / s) + 1 }, (_, k) => k * s) }
 
-// A level over time against a cap: points [{ t, v, label }], ticks [{ t, label }].
-export function Line({ points, from, to, max, cap, ticks, label, tip }) {
+// A level over time, against an optional cap: points [{ t, v, hi?, t0?, t1?, label }], ticks [{ t, label }]. hi, when given, is a
+// second, quieter line above v (a p90 over a p50); a point with t0 and t1 holds its level from t0 to t1 (a step line).
+// bands [[from, to]] shade spans such as alternate days; unit follows each y-axis number.
+export function Line({ points, from, to, max, cap, ticks, label, tip, unit = '', bands = [] }) {
   const [ref, w] = useWidth(), x = t => L + (t - from) / (to - from) * (w - L - R), y = v => T + (1 - v / max) * (H - T - B)
   const near = px => points.reduce((b, p, k) => Math.abs(x(p.t) - px) < Math.abs(x(points[b].t) - px) ? k : b, 0)
   const [i, on] = usePick(points.length, near), p = points[i], end = points.at(-1)
-  const d = points.map((q, k) => `${k ? 'L' : 'M'}${x(q.t).toFixed(1)},${y(q.v).toFixed(1)}`).join('')
+  const path = f => points.map((q, k) => `${k ? 'L' : 'M'}${x(q.t0 ?? q.t).toFixed(1)},${y(f(q)).toFixed(1)}${q.t1 != null ? `H${x(q.t1).toFixed(1)}` : ''}`).join(''), d = path(q => q.v)
   return html`<div class="plot" ref=${ref}>${w > 0 && html`<svg width=${w} height=${H} role="img" aria-label=${label} ...${on}>
-      ${yTicks(max).map(v => html`<g key=${v}><line class="grid" x1=${L} x2=${w - R} y1=${y(v)} y2=${y(v)}/><text class="ax" x=${L - 8} y=${y(v) + 4} text-anchor="end">${v}</text></g>`)}
+      ${bands.map(([a, b]) => html`<rect class="band" key=${a} x=${x(a)} y=${T} width=${x(b) - x(a)} height=${y(0) - T}/>`)}
+      ${yTicks(max).map(v => html`<g key=${v}><line class="grid" x1=${L} x2=${w - R} y1=${y(v)} y2=${y(v)}/><text class="ax" x=${L - 8} y=${y(v) + 4} text-anchor="end">${v}${unit}</text></g>`)}
       ${cap && html`<line class="cap" x1=${L} x2=${w - R} y1=${y(cap)} y2=${y(cap)}/><text class="ax" x=${w - R} y=${y(cap) - 6} text-anchor="end">${cap} slots</text>`}
       ${ticks.map(k => html`<text class="ax" key=${k.t} x=${x(k.t)} y=${H - 6} text-anchor=${k.t === from ? 'start' : k.t === to ? 'end' : 'middle'}>${k.label}</text>`)}
-      <path class="area" d=${`${d}L${x(end.t)},${y(0)}L${x(points[0].t)},${y(0)}Z`}/><path class="ln" d=${d}/>
+      <path class="area" d=${`${d}L${x(end.t1 ?? end.t)},${y(0)}L${x(points[0].t0 ?? points[0].t)},${y(0)}Z`}/><path class="ln" d=${d}/>
+      ${end.hi != null && html`<path class="ln hi" d=${path(q => q.hi)}/>`}
       ${p && html`<line class="hair" x1=${x(p.t)} x2=${x(p.t)} y1=${T} y2=${y(0)}/>`}
-      <circle class="dot" cx=${x((p || end).t)} cy=${y((p || end).v)} r="4"/>
+      <circle class="dot" cx=${x(p ? p.t : end.t1 ?? end.t)} cy=${y((p || end).v)} r="4"/>
     </svg>`}${p && html`<${Tip} x=${x(p.t)} w=${w} value=${tip(p)} label=${p.label}/>`}</div>`
 }
 
@@ -59,10 +63,12 @@ export function Bars({ buckets, label, tip }) {
     </svg>`}${i != null && html`<${Tip} x=${cx(i)} w=${w} value=${tip(buckets[i])} label=${buckets[i].label}/>`}</div>`
 }
 
-// A small trend line with its latest point marked.
+// A small trend line with its latest point marked, on a light 0-to-peak axis.
 export function Spark({ values, label }) {
-  const [ref, w] = useWidth(), h = 48, max = Math.max(1, ...values), x = k => 4 + k / Math.max(1, values.length - 1) * (w - 8), y = v => 4 + (1 - v / max) * (h - 8)
+  const [ref, w] = useWidth(), h = 56, G = 20, max = Math.max(1, ...values)
+  const x = k => G + 4 + k / Math.max(1, values.length - 1) * (w - G - 8), y = v => 6 + (1 - v / max) * (h - 12)
   return html`<div class="spark" ref=${ref}>${w > 0 && html`<svg width=${w} height=${h} role="img" aria-label=${label}>
+    ${[0, max].map(v => html`<g key=${v}><line class="grid" x1=${G} x2=${w} y1=${y(v)} y2=${y(v)}/><text class="ax" x=${G - 6} y=${y(v) + 4} text-anchor="end">${v}</text></g>`)}
     <path class="sl" d=${values.map((v, k) => `${k ? 'L' : 'M'}${x(k).toFixed(1)},${y(v).toFixed(1)}`).join('')}/>
     <circle class=${'dot' + (values.at(-1) ? ' hot' : '')} cx=${x(values.length - 1)} cy=${y(values.at(-1))} r="4"/></svg>`}</div>`
 }

@@ -1,14 +1,14 @@
-import { html, back, open, slotsOf } from './ui.js'
+import { html, back, open, slotsOf, pct, hm } from './ui.js'
 import { Line, Bars, Spark } from './charts.js'
 
 const HOUR = 3600e3, DAY = 24 * HOUR
 const sameDay = (a, b) => a.slice(0, 10) === b.slice(0, 10)
 const Meter = ({ pct, label }) => html`<div class="bar" role="img" aria-label=${label}><i style=${{ width: `${Math.min(100, pct)}%` }}></i></div>`
 export const RANGES = [['24h', 'Last 24 hours', DAY], ['7d', 'Last 7 days', 7 * DAY]]
-const wday = (t, style = 'short') => new Date(t).toLocaleDateString('en', { weekday: style, timeZone: 'UTC' })
+export const wday = (t, style = 'short') => new Date(t).toLocaleDateString('en', { weekday: style, timeZone: 'UTC' })
 
 // Merges per hour over 24 hours, per UTC day over 7 days: ok = merged, bad = failed or reverted.
-function mergeBuckets(fleet, range, to) {
+export function mergeBuckets(fleet, range, to) {
   const spans = range === '24h'
     ? Array.from({ length: 24 }, (_, k) => [to - (24 - k) * HOUR, to - (23 - k) * HOUR, k === 23 ? 'the last hour' : `${24 - k} to ${23 - k} hours ago`,
       { 0: '24h ago', 6: '18h', 12: '12h', 18: '6h', 23: 'now' }[k]])
@@ -24,16 +24,23 @@ export function Overview({ fleet, range }) {
   const lanes = open(fleet), slots = slotsOf(fleet), [key, name, span] = RANGES.find(([k]) => k === range) || RANGES[0], words = name.toLowerCase()
   const to = Date.parse(fleet.generated_at), from = to - span
   const hist = (fleet.history || []).map(h => ({ ...h, t: Date.parse(h.at) })).filter(h => h.t >= from && h.t <= to).sort((a, b) => a.t - b.t)
-  const points = hist.map(h => ({ t: h.t, v: h.lanes, label: back(fleet, h.at) }))
+  // 7 days of hourly samples read as noise, so that range shows the average of each 4 hours as a step line, over day bands.
+  const STEP = 4 * HOUR, hh = t => new Date(t).toISOString().slice(11, 16)
+  const groups = Object.entries(hist.reduce((g, h) => { const s = from + Math.min(Math.floor((h.t - from) / STEP), Math.ceil(span / STEP) - 1) * STEP; (g[s] ||= []).push(h.lanes); return g }, {}))
+  const points = key === '24h' ? hist.map(h => ({ t: h.t, v: h.lanes, label: back(fleet, h.at) }))
+    : groups.map(([s, vs]) => { const t0 = +s, t1 = Math.min(to, t0 + STEP)
+      return { t0, t1, t: (t0 + t1) / 2, v: Math.round(vs.reduce((n, v) => n + v, 0) / vs.length * 10) / 10, label: `${wday(t0)} ${hh(t0)} to ${hh(t1)} UTC` } })
+  const days = Array.from({ length: 7 }, (_, k) => Math.floor(to / DAY) * DAY - k * DAY).map(d => [Math.max(from, d), Math.min(to, d + DAY)])
+  const bands = key === '24h' ? [] : days.filter((_, k) => k % 2 === 0)
   const ticks = key === '24h' ? [24, 18, 12, 6, 0].map(n => ({ t: to - n * HOUR, label: n === 24 ? '24h ago' : n ? `${n}h` : 'now' }))
-    : Array.from({ length: 7 }, (_, k) => Math.floor(to / DAY) * DAY - k * DAY).map(t => ({ t, label: wday(t) }))
+    : days.map(([a, b]) => ({ t: (a + b) / 2, label: wday(a) }))
   const buckets = mergeBuckets(fleet, key, to), mergedIn = buckets.reduce((n, b) => n + b.ok, 0)
   const stuck = lanes.filter(l => l.stuck).length, peak = Math.max(0, ...hist.map(h => h.stuck))
   // Over 7 days the sparkline shows the worst of each 6 samples, so a week stays readable in a small card.
   const trend = key === '24h' ? hist.map(h => h.stuck) : hist.reduce((a, h, k) => (k % 6 ? a[a.length - 1] = Math.max(a.at(-1), h.stuck) : a.push(h.stuck), a), [])
   const healthy = fleet.homes.filter(h => h.supervision.state === 'ok').length
   const incidents = fleet.incidents.filter(i => !i.resolved_at).length
-  const merged = fleet.merges.filter(m => m.outcome === 'merged' && sameDay(m.at, fleet.generated_at)).length
+  const today = fleet.merges.filter(m => m.outcome === 'merged' && m.started_at && sameDay(m.at, fleet.generated_at)).map(m => Date.parse(m.at) - Date.parse(m.started_at)).sort((a, b) => a - b)
   const q = fleet.quota.filter(x => x.runway_hours != null).sort((a, b) => a.runway_hours - b.runway_hours)[0]
   return html`<div class="chips" role="group" aria-label="Time range">${RANGES.map(([k, label]) =>
       html`<a class=${'chip' + (k === key ? ' on' : '')} key=${k} href=${`#/overview?range=${k}`} aria-current=${k === key ? 'true' : null}>${label}</a>`)}</div>
@@ -46,8 +53,8 @@ export function Overview({ fleet, range }) {
             <${Meter} pct=${n / h.lane_cap * 100} label=${`${h.name}: ${n} of ${h.lane_cap} lanes`}/></a>`
         })}</div></div>
       <div class="card chart"><div class="ch"><b>Lanes in use</b><small>${words}</small></div>
-        ${points.length > 1 ? html`<${Line} points=${points} from=${from} to=${to} max=${Math.max(slots, ...points.map(p => p.v))} cap=${slots} ticks=${ticks}
-          label=${`Lanes in use, ${words}: ${points.map(p => p.v).join(', ')}; ${slots} slots`} tip=${p => `${p.v} of ${slots} lanes`}/>`
+        ${points.length > 1 ? html`<${Line} points=${points} from=${from} to=${to} max=${Math.max(slots, ...points.map(p => p.v))} cap=${slots} ticks=${ticks} bands=${bands}
+          label=${`Lanes in use, ${words}: ${points.map(p => p.v).join(', ')}; ${slots} slots`} tip=${p => `${p.v} of ${slots} lanes${p.t0 != null ? ' on average' : ''}`}/>`
           : html`<p class="none">This source sends no lane history</p>`}</div>
     </div>
     <div class="g g-b">
@@ -63,7 +70,7 @@ export function Overview({ fleet, range }) {
       <div class="tile"><span>Supervision</span><b class=${'num ' + (healthy === fleet.homes.length ? 'good' : 'warn')}>${healthy}/${fleet.homes.length}</b><small>homes beating</small></div>
       <div class="tile"><span>Open incidents</span><b class=${'num ' + (incidents ? 'bad' : 'good')}>${incidents}</b><small>${incidents ? 'not resolved' : 'all clear'}</small></div>
       <div class="tile"><span>Quota run-out</span><b class="num">${q ? (q.runway_hours < 1 ? `${Math.round(q.runway_hours * 60)}m` : `${Math.round(q.runway_hours)}h`) : 'unknown'}</b><small>${q ? `${q.account}, ${q.window}` : 'no runway reported'}</small></div>
-      <div class="tile"><span>Merged today</span><b class="num">${merged}</b><small>${fleet.merges.filter(m => sameDay(m.at, fleet.generated_at) && m.outcome !== 'merged').length} failed or reverted</small></div>
+      <a class="tile" href="#/flow"><span>Time to merge today</span><b class="num">${today.length ? hm(pct(today, .5)) : 'none yet'}</b><small>${today.length ? `median of ${today.length} ${today.length === 1 ? 'merge' : 'merges'} ›` : 'no timed merge today'}</small></a>
     </div>
     <h2 class="h2">Hosts</h2>
     <div class="rows">${fleet.hosts.map(h => html`<div class="row" key=${h.id}><div class="t"><b>${h.name}</b><small>load ${h.load1} · sampled ${back(fleet, h.sampled_at)}</small></div>
