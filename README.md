@@ -87,8 +87,8 @@ An **adapter** is anything that produces the fleet document: a file on disk that
 The document holds **hosts** (machines and their load), **homes** (supervised workspaces, each with a lane cap and a supervision heartbeat), **lanes** (units of work), **workers** (agents on lanes), **quota** windows per account, and recent **merges**, **releases** and **incidents**. Optional `history`, `devices` and `plans` fill the Overview charts, the device list and the release targets. Leave out what your fleet does not know; where a chart needs a field the source does not send, Lookout says so instead of guessing.
 
 ```sh
-npx -y lookout-axi check --adapter ./fleet.json   # result: valid, or every problem as path: message
-npx -y lookout-axi contract                       # the full contract, field by field
+npx -y lookout-axi check --adapter ./fleet.json   # valid, or each problem it finds
+npx -y lookout-axi contract                       # the contract, field by field
 ```
 
 The contract is in [docs/adapter.md](docs/adapter.md), and [adapters/sample-fleet/fleet.json](adapters/sample-fleet/fleet.json) is a full example that uses every field.
