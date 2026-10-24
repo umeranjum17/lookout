@@ -1,14 +1,12 @@
-import { html, when, open, slotsOf, STAGES } from './ui.js'
-
-const HEALTHY = { working: 'good', idle: 'warn', waiting: 'warn', exited: '' }
+import { html, when, open, slotsOf, STAGES, State } from './ui.js'
 
 function Lane({ fleet, lane }) {
   const home = fleet.homes.find(h => h.id === lane.home), ws = fleet.workers.filter(w => w.lane === lane.id)
   return html`<li class=${'lane' + (lane.stuck ? ' stuck' : '')}>
     <a class="ln" href=${`#/lane/${lane.id}`}><b>${lane.title}</b></a>
     <small>${lane.project} · ${home.name}</small>
-    ${ws.map(w => html`<small class=${'wk ' + HEALTHY[w.state]} key=${w.id}>${w.agent} ${w.model} · ${w.account} · ${w.state}</small>`)}
-    <span class="meta">${lane.stuck ? html`<span class="pill bad">Stuck</span>` : ''}${lane.pr_url ? html`<a class="pr" href=${lane.pr_url} rel="noreferrer">PR</a>` : ''}<span class="v num">${when(fleet, lane.updated_at)}</span></span></li>`
+    ${ws.map(w => html`<small key=${w.id}>${w.agent} ${w.model} · ${w.account}</small>`)}
+    <span class="meta"><${State} s=${lane.stuck ? 'stuck' : ws.find(w => w.state !== 'exited')?.state}/>${lane.pr_url ? html`<a class="pr" href=${lane.pr_url} rel="noreferrer">PR</a>` : ''}<span class="v num">${when(fleet, lane.updated_at)}</span></span></li>`
 }
 
 export function Lanes({ fleet, home }) {

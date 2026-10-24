@@ -2,7 +2,7 @@
 
 Lookout shows whatever an adapter hands it. An adapter is anything that produces one JSON document in the `lookout.fleet.v1` shape below: a file on disk, a URL, or the output of a script. Lookout never reads your agent tools directly, so pointing it at your own fleet means writing (or generating) that one document.
 
-Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are non-empty strings, unique within their list. Every list may be empty; every list key must be present.
+Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are non-empty strings, unique within their list. Every list may be empty; every list key must be present except `history`, which is optional.
 
 ## Document
 
@@ -19,6 +19,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 | `merges` | merge[] | Recent merge events. |
 | `releases` | release[] | Recent releases. |
 | `incidents` | incident[] | Things that went wrong. |
+| `history` | sample[] | Optional. Lane counts over time, for the Overview charts. |
 
 ### host
 
@@ -51,6 +52,10 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 ### incident
 
 `id`, `at` (time), `severity` (`info` | `warn` | `crit`), `summary`, optional `home` (a home id), optional `lane` (a lane id), optional `resolved_at` (time).
+
+### sample
+
+`at` (time), `lanes` (lanes in use at that time: not `done`, integer 0 or more), `stuck` (how many of them were stuck, integer 0 or more). Send one sample at a steady step (Lookout's own sample sends one an hour) covering at least the last 7 days; Overview plots the last 24 hours or 7 days of them. Merges per hour or day come from `merges`, so keep 7 days of those too.
 
 ## References
 
