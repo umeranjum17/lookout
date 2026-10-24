@@ -52,7 +52,7 @@ Times are ISO 8601 UTC strings. Percentages are numbers from 0 to 100. Ids are n
 
 ### incident
 
-`id`, `at` (time), `severity` (`info` | `warn` | `crit`), `summary`, optional `home` (a home id), optional `lane` (a lane id), optional `resolved_at` (time).
+`id`, `at` (time), `severity` (`info` | `warn` | `crit`), `summary`, optional `home` (a home id), optional `lane` (a lane id), optional `resolved_at` (time), optional `kind` (one word Incidents filters by; Lookout names these: `blocked` (a lane that cannot move), `check` (failed CI or a failed proof), `supervision` (a supervisor stopped beating), `quota` (work moved off an account at its limit), `guard` (a safety guard refused a command), `source` (a data source Lookout's adapter could not read), `device` (a test device problem) and `defect` (a defect someone logged); any other word shows as written).
 
 ### sample
 
