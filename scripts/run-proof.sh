@@ -43,7 +43,8 @@ for state in before after; do
     for theme in light dark; do
       chrome emulate --viewport "${width}x${height}" --color-scheme "$theme" >> "$out/browser.log"
       chrome open "https://github.com/umeranjum17/lookout/blob/$ref/README.md" >> "$out/browser.log"
-      chrome wait 1500 >> "$out/browser.log"
+      # chrome-devtools-axi wait currently errors ("fn is not a function"); sleep is enough for render.
+      sleep 1.5
       chrome eval '() => { const a = document.querySelector("article.markdown-body"); if (!a) throw new Error("GitHub README missing"); a.scrollIntoView(); window.scrollBy(0,-64); if ([...a.querySelectorAll("img")].filter(i=>i.getBoundingClientRect().top<innerHeight).some(i=>!i.complete||!i.naturalWidth)) throw new Error("Visible README image failed to load"); return {title:a.innerText.slice(0,100), images:[...a.querySelectorAll("img")].map(i=>({src:i.currentSrc,loaded:i.complete&&i.naturalWidth>0})), scrollContainers:[...document.querySelectorAll("article *")].filter(e=>e.scrollWidth>e.clientWidth&&getComputedStyle(e).overflowX==="auto").length}; }' >> "$out/browser.log"
       chrome screenshot "$out/readme-${state}-${width}-${theme}.png" >> "$out/browser.log"
     done
