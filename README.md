@@ -39,11 +39,9 @@ To show your own work, [produce a fleet JSON document](docs/setup.md) and run `n
 
 ## Why Lookout
 
-| Your question | Checking by hand | With Lookout |
-| --- | --- | --- |
-| Which work needs me? | Open each workspace and inspect its status. | Scan a lane board with stages, workers and stuck work. |
-| Will capacity last? | Check account windows and host load separately. | Read quota runway, CPU, memory and disk together. |
-| Why is nothing shipping? | Reconstruct merges, failures and release status. | Follow merge time, waiting reasons and releases across the fleet. |
+- **Who needs me?** Lookout: lanes by stage, workers and stuck work (instead of opening each workspace).
+- **Will capacity last?** Lookout: quota runway, CPU, memory and disk together (instead of checking accounts and hosts separately).
+- **Why is nothing shipping?** Lookout: merge time, waiting reasons and releases across the fleet (instead of reconstructing merges and failures by hand).
 
 Lookout reads one JSON document from a file or URL and refreshes every 30 seconds. Your adapter decides where the data comes from. The dashboard sends no commands to your agents.
 
