@@ -32,6 +32,7 @@ serve_exit=0
 wait "$server_job" || serve_exit=$?
 [[ $serve_exit == 124 ]] || { echo "Unexpected server exit: $serve_exit"; exit 1; }
 chrome start > "$out/browser.log"
+chrome open about:blank >> "$out/browser.log"
 for state in before after; do
   ref=$base
   [[ $state == before ]] || ref=$head
