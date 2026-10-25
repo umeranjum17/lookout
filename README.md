@@ -1,8 +1,10 @@
 <div align="center">
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/lookout-logo-dark.svg">
+  <img src="docs/images/lookout-logo.svg" width="48" height="48" alt="Lookout observation tower">
+</picture>
 <h1>Lookout</h1>
-
-<!-- Logo placeholder: docs/images/lookout-logo.svg (pending first-draft generation). -->
 
 **Know which coding agents need you before work stalls.**
 
@@ -83,5 +85,3 @@ npm start
 Plain JavaScript modules, no build step. See [the adapter reference](docs/adapter.md) to add a data source.
 
 [MIT license](LICENSE).
-
-<!-- Social preview placeholder: docs/images/social-preview.png (pending first-draft generation; upload in repository Settings). -->
