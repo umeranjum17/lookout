@@ -52,5 +52,5 @@ for state in before after; do
 done
 node --input-type=module - "$out/steps.json" "$head" <<'JS'
 import { writeFileSync } from 'node:fs'
-writeFileSync(process.argv[2], JSON.stringify({target:{version:process.argv[3]},start:'Clean committed checkout; anonymous GitHub browser; published npm package in a separate directory',steps:['Run the three README commands from an empty evidence directory','Open the published sample fleet over HTTP','Open the baseline and candidate README on github.com','Read the first screen at 390x844 and 1280x800 in light and dark'],result:'Published sample fleet responds; eight GitHub README frames saved for visual review'},null,2))
+writeFileSync(process.argv[2], JSON.stringify({target:{version:process.argv[3]},start:'Clean committed checkout; anonymous GitHub browser; published npm package in a separate directory',steps:['Run the three-command quick start from an empty evidence directory','Open the published sample fleet over HTTP','Open the baseline and candidate launch README on github.com','Read the first screen pitch, logo and product captures at 390x844 and 1280x800 in light and dark'],result:'Published sample fleet responds; eight GitHub launch README frames (pitch, logo, themed captures, quick start) saved for visual review'},null,2))
 JS
