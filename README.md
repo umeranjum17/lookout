@@ -49,20 +49,28 @@ Lookout reads one JSON document from a file or URL and refreshes every 30 second
 
 ## What you get
 
-| **Find the work that needs a hand** | **See what limits the fleet** |
-| --- | --- |
-| Lanes move from queued to done, with a detail page for each lane and filters by workspace. | Capacity brings account quota, host load, memory gates, heavy jobs and test devices together. |
-| **Understand the path to merge** | **Track trouble and releases** |
-| Flow shows median and p90 merge time, first-pass rate and reasons work is waiting. | Incidents show severity and resolution; releases compare what is live with what is in development. |
+- **Find the work that needs a hand** — Lanes move from queued to done, with a detail page for each lane and filters by workspace.
+- **See what limits the fleet** — Capacity brings account quota, host load, memory gates, heavy jobs and test devices together.
+- **Understand the path to merge** — Flow shows median and p90 merge time, first-pass rate and reasons work is waiting.
+- **Track trouble and releases** — Incidents show severity and resolution; releases compare what is live with what is in development.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/screens-dark.webp">
-  <img src="docs/images/screens-light.webp" width="880" alt="Real sample-fleet screens for Flow, Capacity, Incidents and Releases">
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="docs/images/flow-phone-dark.webp">
+  <source media="(max-width: 600px)" srcset="docs/images/flow-phone-light.webp">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/flow-dark.webp">
+  <img src="docs/images/flow-light.webp" width="880" alt="Sample fleet Flow: time to merge, merges per day, first-pass rate and why work waits">
+</picture>
+
+<picture>
+  <source media="(max-width: 600px) and (prefers-color-scheme: dark)" srcset="docs/images/capacity-phone-dark.webp">
+  <source media="(max-width: 600px)" srcset="docs/images/capacity-phone-light.webp">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/capacity-dark.webp">
+  <img src="docs/images/capacity-light.webp" width="880" alt="Sample fleet Capacity: quota runway, soonest run-out and host memory gates">
 </picture>
 
 ## Try it, inspect it, verify it
 
-The hero shows a **live fleet** Overview (real lane history and home load). The secondary screens below use the [bundled sample adapter](adapters/sample-fleet/fleet.json) from the [published npm package](https://www.npmjs.com/package/lookout-axi), so you can run the same dashboard yourself.
+The hero shows a **live fleet** Overview (real lane history and home load). The Flow and Capacity frames below use the [bundled sample adapter](adapters/sample-fleet/fleet.json) from the [published npm package](https://www.npmjs.com/package/lookout-axi), so you can run the same dashboard yourself.
 
 - [Integration checks](test/) exercise the adapter contract, CLI and HTTP server; [CI runs them on every pull request](https://github.com/umeranjum17/lookout/actions/workflows/ci.yml).
 - [The adapter contract](docs/adapter.md) documents the inputs behind the charts. Missing inputs are identified rather than guessed.

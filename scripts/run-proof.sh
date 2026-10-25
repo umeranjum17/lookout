@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
-# Real npm startup plus GitHub's rendered README, before/after at both widths and themes.
+# Real npm startup plus GitHub's rendered README, full page at both widths and themes.
 set -euo pipefail
 : "${DONE_DONE_EVIDENCE_ROOT:?Run this script through done-done run readme}"
 out=$DONE_DONE_EVIDENCE_ROOT
 export CHROME_DEVTOOLS_AXI_SESSION="lookout-proof-${DONE_DONE_RUN_ID}"
 chrome() { chrome-devtools-axi "$@"; }
 trap 'chrome stop > /dev/null 2>&1' EXIT
-base=a8253a59065379a2e3a78b444ab72bbaa046dffa
+base=87dc8fd0b49f71df1cdd8e85173228bcd07a5ed6
+# Prefer the merge-base with origin/main when available (live README before this branch).
+if git rev-parse --verify origin/main >/dev/null 2>&1; then
+  base=$(git merge-base HEAD origin/main)
+fi
 head=$(git rev-parse HEAD)
 (cd "$out"; npx -y lookout-axi --version; npx -y lookout-axi check) > "$out/npm-check.log" 2>&1
 node --input-type=module <<'JS'
@@ -46,11 +50,11 @@ for state in before after; do
       # chrome-devtools-axi wait currently errors ("fn is not a function"); sleep is enough for render.
       sleep 1.5
       chrome eval '() => { const a = document.querySelector("article.markdown-body"); if (!a) throw new Error("GitHub README missing"); a.scrollIntoView(); window.scrollBy(0,-64); if ([...a.querySelectorAll("img")].filter(i=>i.getBoundingClientRect().top<innerHeight).some(i=>!i.complete||!i.naturalWidth)) throw new Error("Visible README image failed to load"); return {title:a.innerText.slice(0,100), images:[...a.querySelectorAll("img")].map(i=>({src:i.currentSrc,loaded:i.complete&&i.naturalWidth>0})), scrollContainers:[...document.querySelectorAll("article *")].filter(e=>e.scrollWidth>e.clientWidth&&getComputedStyle(e).overflowX==="auto").length}; }' >> "$out/browser.log"
-      chrome screenshot "$out/readme-${state}-${width}-${theme}.png" >> "$out/browser.log"
+      chrome screenshot "$out/readme-${state}-${width}-${theme}.png" --full-page >> "$out/browser.log"
     done
   done
 done
 node --input-type=module - "$out/steps.json" "$head" <<'JS'
 import { writeFileSync } from 'node:fs'
-writeFileSync(process.argv[2], JSON.stringify({target:{version:process.argv[3]},start:'Clean committed checkout; anonymous GitHub browser; published npm package in a separate directory',steps:['Run the three-command quick start from an empty evidence directory','Open the published sample fleet over HTTP','Open the baseline and candidate launch README on github.com','Read the first screen pitch, logo and product captures at 390x844 and 1280x800 in light and dark'],result:'Published sample fleet responds; eight GitHub launch README frames (pitch, logo, themed captures, quick start) saved for visual review'},null,2))
+writeFileSync(process.argv[2], JSON.stringify({target:{version:process.argv[3]},start:'Clean committed checkout; anonymous GitHub browser; published npm package in a separate directory',steps:['Run the three-command quick start from an empty evidence directory','Open the published sample fleet over HTTP','Open the baseline and candidate launch README on github.com','Read the full-page README (hero plus below-fold Flow and Capacity frames) at 390x844 and 1280x800 in light and dark'],result:'Published sample fleet responds; eight full-page GitHub README frames (pitch, logo, themed hero and below-fold Flow/Capacity captures, quick start) saved for visual review'},null,2))
 JS
