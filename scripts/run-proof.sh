@@ -74,5 +74,17 @@ done
 } > "$out/fold-review.txt"
 node --input-type=module - "$out/steps.json" "$head" <<'JS'
 import { writeFileSync } from 'node:fs'
-writeFileSync(process.argv[2], JSON.stringify({target:{version:process.argv[3]},start:'Clean committed checkout; anonymous GitHub browser; published npm package in a separate directory',steps:['Run the three-command quick start from an empty evidence directory','Open the published sample fleet over HTTP','Open the baseline and candidate launch README on github.com','Capture viewport and full-page README frames at 390x844 and 1280x800 in light and dark','Write fold-review.txt of sections checked'],result:'Published sample fleet responds; viewport and full-page GitHub README frames plus fold-review transcript saved for visual review'},null,2))
+writeFileSync(process.argv[2], JSON.stringify({
+  target: { version: process.argv[3] },
+  start: 'Clean committed checkout; anonymous GitHub browser; published npm package in a separate directory',
+  steps: [
+    'Run the three-command quick start from an empty evidence directory',
+    'Open the published sample fleet over HTTP',
+    'Open the baseline and candidate launch README on github.com',
+    'Capture viewport and full-page README frames at 390x844 and 1280x800 in light and dark',
+    'Read the README below the fold on a phone: the Why Lookout list is readable (no table), the Flow and Capacity frames are hero size, no black gutter or collage',
+    'Write fold-review.txt of sections checked'
+  ],
+  result: 'Below the fold on phone the Why Lookout list is readable; Flow and Capacity frames match hero size with no black gutter collage; viewport screen frames and fold-review transcript saved'
+}, null, 2))
 JS
