@@ -1,0 +1,4 @@
+journeys:
+  readme:
+    command: bash scripts/run-proof.sh
+    core: true
