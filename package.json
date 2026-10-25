@@ -1,15 +1,15 @@
 {
   "name": "lookout-axi",
   "version": "0.1.0",
-  "description": "See your agent fleet at a glance: lanes, workers, quota runway, merge flow, host load and releases.",
+  "description": "Know which coding agents need you before work stalls: a read-only fleet dashboard.",
   "license": "MIT",
   "type": "module",
   "bin": { "lookout": "bin/lookout.js", "lookout-axi": "bin/lookout.js" },
-  "files": ["bin/lookout.js", "server.js", "lib", "app", "adapters", "docs/adapter.md", "skills/lookout-axi"],
+  "files": ["bin/lookout.js", "server.js", "lib", "app", "adapters", "docs/adapter.md", "docs/setup.md", "skills/lookout-axi"],
   "engines": { "node": ">=20" },
   "repository": { "type": "git", "url": "git+https://github.com/umeranjum17/lookout.git" },
   "homepage": "https://github.com/umeranjum17/lookout",
-  "keywords": ["axi", "agent", "cli", "dashboard", "observability", "fleet"],
+  "keywords": ["coding-agents", "agent-fleet", "dashboard", "observability", "quota", "cli", "axi"],
   "scripts": {
     "start": "node bin/lookout.js serve",
     "sample": "bin/run-sample.sh",
