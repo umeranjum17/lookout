@@ -19,7 +19,7 @@ A read-only fleet dashboard for people running agents across workspaces, account
 
 [Quick start](#quick-start) · [Connect your fleet](docs/setup.md) · [Adapter reference](docs/adapter.md) · [Agent skill](skills/lookout-axi/SKILL.md)
 
-[![npm version](https://img.shields.io/npm/v/lookout-axi)](https://www.npmjs.com/package/lookout-axi) [![CI](https://github.com/umeranjum17/lookout/actions/workflows/ci.yml/badge.svg)](https://github.com/umeranjum17/lookout/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/lookout-axi)](https://www.npmjs.com/package/lookout-axi) [![CI](https://github.com/umeranjum17/lookout/actions/workflows/ci.yml/badge.svg)](https://github.com/umeranjum17/lookout/actions/workflows/ci.yml) [![X](https://img.shields.io/badge/X-@umership-black)](https://x.com/umership)
 
 </div>
 
