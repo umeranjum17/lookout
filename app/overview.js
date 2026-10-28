@@ -31,7 +31,7 @@ export function answers(fleet) {
 }
 
 const Rows = ({ fleet, lanes, badge, note, act = true }) => html`<ul class="list">${lanes.map(l => html`<li class="item" key=${l.id}>
-  <span class=${'badge ' + badge[0]}>${badge[1] || STAGES.find(s => s[0] === l.stage)[1]}</span>
+  <span class=${'badge ' + badge[0]}>${badge[1] || STAGES.find(s => s[0] === l.stage).slice(1).at(-1)}</span>
   <a class="rt" href=${`#/lane/${l.id}`}>${l.title}${note(l) && html`<span class="note">${note(l)}</span>`}</a>
   <span class="meta home">${fleet.homes.find(h => h.id === l.home)?.name}</span><span class="meta age num">${when(fleet, l.updated_at).split(' ')[0]}</span>
   <span class="acts">${act && html`<a class="btn" href=${`#/lane/${l.id}`}>Open lane</a>`}</span></li>`)}</ul>`
