@@ -31,8 +31,7 @@ ul,ol{list-style:none}
 .tag{font-size:12px;border:1px solid var(--ctl);border-radius:4px;padding:1px 6px;font-weight:500;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nav a,.hlist a{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-radius:6px;font-size:15px}
 .nav a[aria-current]{background:var(--card);box-shadow:inset 2px 0 0 var(--ink),0 0 0 1px var(--line)}.nav .num{font-size:13px;color:var(--ink-3)}
-.hlist p{margin:0 0 6px;font-size:13px;color:var(--ink-3)}.hlist a{padding:4px 8px}.hlist .meta{font-size:13px;color:var(--ink-3)}
-.marks{display:inline-flex;gap:3px}.marks i{width:7px;height:11px;border-radius:2px;background:var(--ink)}.marks i.over{background:none;border:1.5px solid var(--s-line)}
+.hlist p{margin:0 0 6px;font-size:13px;color:var(--ink-3)}.hlist a{padding:4px 8px}.hlist .meta{font-size:13px;color:var(--ink-3)}.marks{display:inline-flex;gap:3px}.marks i{width:7px;height:11px;border-radius:2px;background:var(--ink)}.marks i.over{background:none;border:1.5px solid var(--s-line)}
 .user{margin-top:auto;display:flex;justify-content:space-between;align-items:center;font-size:13px;border-top:1px solid var(--line);padding-top:12px}
 .btn{font:inherit;font-size:14px;font-weight:500;padding:6px 12px;border-radius:6px;border:1px solid var(--ctl);background:var(--card);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.theme{width:34px;height:34px;padding:0;justify-content:center}
 .main{padding:24px 32px 20px;max-width:1760px;width:100%}
