@@ -12,7 +12,7 @@
   ],
   "lanes": [
     { "id": "web-101", "home": "web", "title": "Dark mode for the settings page", "project": "storefront", "stage": "working", "stuck": false, "started_at": "2026-10-24T09:10:00Z", "updated_at": "2026-10-24T11:55:00Z" },
-    { "id": "web-102", "home": "web", "title": "Fix cart rounding on discounts", "project": "storefront", "stage": "review", "stuck": false, "started_at": "2026-10-24T08:00:00Z", "updated_at": "2026-10-24T11:40:00Z", "waiting_on": "review", "pr_url": "https://example.com/storefront/pull/412" },
+    { "id": "web-102", "home": "web", "title": "Fix cart rounding on discounts", "project": "storefront", "stage": "working", "stuck": false, "started_at": "2026-10-24T08:00:00Z", "updated_at": "2026-10-24T11:40:00Z", "waiting_on": "your call on the rounding rule", "pr_url": "https://example.com/storefront/pull/412" },
     { "id": "web-103", "home": "web", "title": "Upgrade the image resizer", "project": "media", "stage": "working", "stuck": true, "started_at": "2026-10-24T06:30:00Z", "updated_at": "2026-10-24T09:05:00Z", "waiting_on": "a failing build" },
     { "id": "web-104", "home": "web", "title": "Add order export", "project": "storefront", "stage": "queued", "stuck": false, "started_at": "2026-10-24T11:50:00Z", "updated_at": "2026-10-24T11:50:00Z", "waiting_on": "a free slot" },
     { "id": "infra-201", "home": "infra", "title": "Rotate the build cache", "project": "ci", "stage": "merging", "stuck": false, "started_at": "2026-10-24T07:45:00Z", "updated_at": "2026-10-24T11:30:00Z", "waiting_on": "CI checks", "pr_url": "https://example.com/ci/pull/88" },
