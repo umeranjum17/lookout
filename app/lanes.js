@@ -13,7 +13,7 @@ function Card({ fleet, lane }) {
   return html`<div class="card"><a class="rt" href=${`#/lane/${lane.id}`}>${lane.title}</a><span class="meta">
     ${lane.stuck ? html`<span class="badge b-s">Stuck</span>` : waits && html`<span class="badge b-q">Waiting</span>`}${fleet.homes.find(h => h.id === lane.home)?.name}
     ${!lane.stuck && !waits && ws.map(w => html`<span key=${w.id}>${w.agent}, ${w.model}</span>`)}
-    ${lane.pr_url && html`<a class="num" href=${lane.pr_url} rel="noreferrer">#${lane.pr_url.split('/').pop()}</a>`}<span class="num">${when(fleet, lane.updated_at).split(' ')[0]}</span></span>${why && html`<q>${why}</q>`}</div>`
+    ${lane.pr_url && html`<a class="num" href=${lane.pr_url} rel="noreferrer">${'#' + lane.pr_url.split('/').pop()}</a>`}<span class="num">${when(fleet, lane.updated_at).split(' ')[0]}</span></span>${why && html`<q>${why}</q>`}</div>`
 }
 
 export function Lanes({ fleet, home }) {
