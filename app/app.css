@@ -185,7 +185,7 @@ path.ok{fill:var(--acc)}path.bad{fill:var(--red)}g.on path{opacity:.75}
 .app.solo{grid-template-columns:minmax(0,1fr)}.app.solo>.side{display:none}.app.solo .phonenav{display:flex}.app.solo .main{padding:24px 20px}.app.solo .sub a{text-decoration:underline;text-underline-offset:3px}
 .cols{display:grid;grid-template-columns:var(--cols);gap:8px;margin-top:20px;align-items:start}
 .col h2{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-size:15px;line-height:20px;padding-bottom:6px;border-bottom:1px solid var(--line)}
-.col h2 .nm{display:flex;align-items:flex-end;min-height:40px}.col h2 .num{font-size:22px;line-height:26px;font-weight:600}.col.empty h2 .num{color:var(--ink-3)}
+.col h2 .nm{display:flex;align-items:flex-end;min-height:40px}.col h2 .num{font-size:22px;line-height:26px;font-weight:600}.col.empty h2 .num{color:var(--ink-3)}.col.empty{display:block;padding:0;text-align:left;color:inherit}
 .col .none{font-size:12px;color:var(--ink-3);border:1px dashed var(--ctl);border-radius:6px;padding:8px;margin-top:8px}
 .cols .card{background:var(--card);border:1px solid var(--panel);border-radius:6px;padding:10px 12px;margin-top:8px;box-shadow:none}
 .cols .rt{display:block;margin-bottom:6px;font-size:14px;font-weight:600}.cols .meta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--ink-3)}.cols .badge{font-size:13px}
