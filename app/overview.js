@@ -1,10 +1,6 @@
-import { html, back, open, slotsOf, pct, hm } from './ui.js'
-import { Line, Bars, Spark } from './charts.js'
+import { html, when, open, slotsOf, STAGES } from './ui.js'
 
 const HOUR = 3600e3, DAY = 24 * HOUR
-const sameDay = (a, b) => a.slice(0, 10) === b.slice(0, 10)
-const Meter = ({ pct, label }) => html`<div class="bar" role="img" aria-label=${label}><i style=${{ width: `${Math.min(100, pct)}%` }}></i></div>`
-export const RANGES = [['24h', 'Last 24 hours', DAY], ['7d', 'Last 7 days', 7 * DAY]]
 export const wday = (t, style = 'short') => new Date(t).toLocaleDateString('en', { weekday: style, timeZone: 'UTC' })
 
 // The last n whole UTC days, today included, as [start, name, axis label]: 7 days label each weekday, longer runs every 7th day.
@@ -14,73 +10,82 @@ export const lastDays = (to, n) => Array.from({ length: n }, (_, k) => {
     today ? 'Today' : n <= 7 ? wday(d) : (n - 1 - k) % 7 ? undefined : new Date(d).toLocaleDateString('en', { day: 'numeric', month: 'short', timeZone: 'UTC' })]
 })
 
-// Merges per hour over 24 hours, per UTC day over 7 or 30 days: ok = merged, bad = failed or reverted.
+// Merges per hour over 24 hours, per UTC day over 7, 14 or 30 days: ok = merged, bad = failed or reverted.
 export function mergeBuckets(fleet, range, to) {
   const spans = range === '24h'
     ? Array.from({ length: 24 }, (_, k) => [to - (24 - k) * HOUR, to - (23 - k) * HOUR, k === 23 ? 'the last hour' : `${24 - k} to ${23 - k} hours ago`,
       { 0: '24h ago', 6: '18h', 12: '12h', 18: '6h', 23: 'now' }[k]])
-    : lastDays(to, range === '30d' ? 30 : 7).map(([d, label, tick]) => [d, d + DAY, label, tick])
+    : lastDays(to, parseInt(range)).map(([d, label, tick]) => [d, d + DAY, label, tick])
   return spans.map(([a, b, label, tick]) => {
     const ms = fleet.merges.filter(m => Date.parse(m.at) >= a && Date.parse(m.at) < b)
-    return { ok: ms.filter(m => m.outcome === 'merged').length, bad: ms.filter(m => m.outcome !== 'merged').length, label, tick }
+    return { t: a, ok: ms.filter(m => m.outcome === 'merged').length, bad: ms.filter(m => m.outcome !== 'merged').length, label, tick }
   })
 }
 
-export function Overview({ fleet, range }) {
-  const lanes = open(fleet), slots = slotsOf(fleet), [key, name, span] = RANGES.find(([k]) => k === range) || RANGES[0], words = name.toLowerCase()
-  const to = Date.parse(fleet.generated_at), from = to - span
-  const hist = (fleet.history || []).map(h => ({ ...h, t: Date.parse(h.at) })).filter(h => h.t >= from && h.t <= to).sort((a, b) => a.t - b.t)
-  // 7 days of hourly samples read as noise, so that range shows the average of each 4 hours as a step line, over day bands.
-  const STEP = 4 * HOUR, hh = t => new Date(t).toISOString().slice(11, 16)
-  const groups = Object.entries(hist.reduce((g, h) => { const s = from + Math.min(Math.floor((h.t - from) / STEP), Math.ceil(span / STEP) - 1) * STEP; (g[s] ||= []).push(h.lanes); return g }, {}))
-  const points = key === '24h' ? hist.map(h => ({ t: h.t, v: h.lanes, label: back(fleet, h.at) }))
-    : groups.map(([s, vs]) => { const t0 = +s, t1 = Math.min(to, t0 + STEP)
-      return { t0, t1, t: (t0 + t1) / 2, v: Math.round(vs.reduce((n, v) => n + v, 0) / vs.length * 10) / 10, label: `${wday(t0)} ${hh(t0)} to ${hh(t1)} UTC` } })
-  const days = Array.from({ length: 7 }, (_, k) => Math.floor(to / DAY) * DAY - k * DAY).map(d => [Math.max(from, d), Math.min(to, d + DAY)])
-  const bands = key === '24h' ? [] : days.filter((_, k) => k % 2 === 0)
-  const ticks = key === '24h' ? [24, 18, 12, 6, 0].map(n => ({ t: to - n * HOUR, label: n === 24 ? '24h ago' : n ? `${n}h` : 'now' }))
-    : days.map(([a, b]) => ({ t: (a + b) / 2, label: wday(a) }))
-  const buckets = mergeBuckets(fleet, key, to), mergedIn = buckets.reduce((n, b) => n + b.ok, 0)
-  const stuck = lanes.filter(l => l.stuck).length, peak = Math.max(0, ...hist.map(h => h.stuck))
-  // Over 7 days the sparkline shows the worst of each 6 samples, so a week stays readable in a small card.
-  const trend = key === '24h' ? hist.map(h => h.stuck) : hist.reduce((a, h, k) => (k % 6 ? a[a.length - 1] = Math.max(a.at(-1), h.stuck) : a.push(h.stuck), a), [])
-  const healthy = fleet.homes.filter(h => h.supervision.state === 'ok').length
-  const incidents = fleet.incidents.filter(i => !i.resolved_at).length
-  const today = fleet.merges.filter(m => m.outcome === 'merged' && m.started_at && sameDay(m.at, fleet.generated_at)).map(m => Date.parse(m.at) - Date.parse(m.started_at)).sort((a, b) => a - b)
-  const q = fleet.quota.filter(x => x.runway_hours != null).sort((a, b) => a.runway_hours - b.runway_hours)[0]
-  return html`<div class="chips" role="group" aria-label="Time range">${RANGES.map(([k, label]) =>
-      html`<a class=${'chip' + (k === key ? ' on' : '')} key=${k} href=${`#/overview?range=${k}`} aria-current=${k === key ? 'true' : null}>${label}</a>`)}</div>
-    <div class="g g-a">
-      <div class="card slots"><span class="lbl">Lanes in use</span><b class="big">${lanes.length} of ${slots}</b><small>slots · ${Math.max(0, slots - lanes.length)} free</small>
-        <${Meter} pct=${slots ? lanes.length / slots * 100 : 0} label=${`${lanes.length} of ${slots} slots in use`}/>
-        <div class="homes">${fleet.homes.map(h => {
-          const n = lanes.filter(l => l.home === h.id).length
-          return html`<a class="hm" key=${h.id} href=${`#/lanes?home=${h.id}`}><span>${h.name}</span><span class="num">${n}/${h.lane_cap}${n > h.lane_cap ? ' · over' : ''} ›</span>
-            <${Meter} pct=${n / h.lane_cap * 100} label=${`${h.name}: ${n} of ${h.lane_cap} lanes`}/></a>`
-        })}</div></div>
-      <div class="card chart"><div class="ch"><b>Lanes in use</b><small>${words}</small></div>
-        ${points.length > 1 ? html`<${Line} points=${points} from=${from} to=${to} max=${Math.max(slots, ...points.map(p => p.v))} cap=${slots} ticks=${ticks} bands=${bands} fill
-          label=${`Lanes in use, ${words}: ${points.map(p => p.v).join(', ')}; ${slots} slots`} tip=${p => `${p.v} of ${slots} lanes${p.t0 != null ? ' on average' : ''}`}/>`
-          : html`<p class="none">This source sends no lane history</p>`}</div>
-    </div>
-    <div class="g g-b">
-      <div class="card chart"><div class="ch"><b>${key === '24h' ? 'Merges per hour' : 'Merges per day'}</b>
-          <span class="key"><span><i class="ok"></i>Merged ${mergedIn}</span><span><i class="bad"></i>Failed or reverted</span></span></div>
-        <${Bars} buckets=${buckets} label=${`Merges, ${words}: ${buckets.map(b => `${b.label} ${b.ok} merged, ${b.bad} failed or reverted`).join('; ')}`}
-          tip=${b => `${b.ok} merged${b.bad ? `, ${b.bad} failed or reverted` : ''}`}/></div>
-      <div class="card chart stuck"><div class="ch"><b>Stuck lanes</b><small>${words}</small></div>
-        <b class=${'big ' + (stuck ? 'bad' : 'good')}>${stuck}</b><small>${stuck ? 'need a hand now' : 'nothing stuck now'}${hist.length ? ` · peak ${peak}` : ''}</small>
-        ${trend.length > 1 && html`<${Spark} values=${trend} label=${`Stuck lanes, ${words}: ${trend.join(', ')}`}/>`}</div>
-    </div>
-    <div class="tiles">
-      <div class="tile"><span>Supervision</span><b class=${'num ' + (healthy === fleet.homes.length ? 'good' : 'warn')}>${healthy}/${fleet.homes.length}</b><small>homes beating</small></div>
-      <div class="tile"><span>Open incidents</span><b class=${'num ' + (incidents ? 'bad' : 'good')}>${incidents}</b><small>${incidents ? 'not resolved' : 'all clear'}</small></div>
-      <div class="tile"><span>Quota run-out</span><b class="num">${q ? (q.runway_hours < 1 ? `${Math.round(q.runway_hours * 60)}m` : `${Math.round(q.runway_hours)}h`) : 'unknown'}</b><small>${q ? `${q.account}, ${q.window}` : 'no runway reported'}</small></div>
-      <a class="tile" href="#/flow"><span>Time to merge today</span><b class="num">${today.length ? hm(pct(today, .5)) : 'none yet'}</b><small>${today.length ? `median of ${today.length} ${today.length === 1 ? 'merge' : 'merges'} ›` : 'no timed merge today'}</small></a>
-    </div>
-    <h2 class="h2">Hosts</h2>
-    <div class="rows">${fleet.hosts.map(h => html`<div class="row" key=${h.id}><div class="t"><b>${h.name}</b><small>load ${h.load1} · sampled ${back(fleet, h.sampled_at)}</small></div>
-      <div class="load"><span>CPU ${h.cpu_pct}%</span><${Meter} pct=${h.cpu_pct} label=${`${h.name} CPU ${h.cpu_pct}%`}/></div>
-      <div class="load"><span>Memory ${h.mem_pct}%</span><${Meter} pct=${h.mem_pct} label=${`${h.name} memory ${h.mem_pct}%`}/></div></div>`)}</div>
-    <a class="rows go" href="#/releases"><div class="row"><div class="t"><b>Releases</b><small>${fleet.releases.length} recent</small></div><span class="v">Open ›</span></div></a>`
+// Ops sorts every open lane into one answer: stuck, waiting on you (a worker waits for input), or running (a worker works).
+export function answers(fleet) {
+  const live = open(fleet).sort((a, b) => Date.parse(a.updated_at) - Date.parse(b.updated_at))
+  const has = (l, s) => fleet.workers.some(w => w.lane === l.id && w.state === s)
+  const stuck = live.filter(l => l.stuck), waiting = live.filter(l => !l.stuck && has(l, 'waiting'))
+  return { live, stuck, waiting, running: live.filter(l => !l.stuck && !waiting.includes(l) && has(l, 'working')) }
+}
+
+const Rows = ({ fleet, lanes, badge, note, act = true }) => html`<ul class="list">${lanes.map(l => html`<li class="item" key=${l.id}>
+  <span class=${'badge ' + badge[0]}>${badge[1] || STAGES.find(s => s[0] === l.stage)[1]}</span>
+  <a class="rt" href=${`#/lane/${l.id}`}>${l.title}${note(l) && html`<span class="note">${note(l)}</span>`}</a>
+  <span class="meta home">${fleet.homes.find(h => h.id === l.home)?.name}</span><span class="meta age num">${when(fleet, l.updated_at).split(' ')[0]}</span>
+  <span class="acts">${act && html`<a class="btn" href=${`#/lane/${l.id}`}>Open lane</a>`}</span></li>`)}</ul>`
+const Block = ({ id, name, n, children }) => html`<section class="block" id=${id} aria-labelledby=${'h-' + id}>
+  <header><h2 id=${'h-' + id}>${name} <span class="count">${n}</span></h2></header>${n ? children : html`<p class="none">Nothing ${name.toLowerCase()}.</p>`}</section>`
+
+// Landed per day as blue bars beside grey closed-without-landing bars; the phone draws narrower bars and every other day.
+function Landed({ days, W, ph }) {
+  const max = Math.max(4, ...days.map(d => d.ok + d.bad)), top = Math.ceil(max / 2) * 2, y = v => 158 - v / top * 140, band = (W - 28) / days.length, [lw, cw] = ph ? [8, 6] : [12, 8]
+  return html`<svg viewBox=${`0 0 ${W} 184`} role="img" aria-label=${`${days[0].label} to today. Landed: ${days.map(d => d.ok).join(', ')}. Closed without landing: ${days.map(d => d.bad).join(', ')}.`}>
+    ${[0, top / 2, top].map(v => html`<line x1="22" x2=${W - 6} y1=${y(v)} y2=${y(v)} stroke="var(--grid)"/><text x="16" y=${y(v) + 4} text-anchor="end">${v}</text>`)}
+    ${days.map((d, k) => html`<g transform=${`translate(${22 + band * (k + .5) + 4} 0)`}>
+      ${d.ok > 0 && html`<rect class="ld" x=${-lw} y=${y(d.ok)} width=${lw} height=${158 - y(d.ok)}/>`}${d.bad > 0 && html`<rect class="cl" x="1" y=${y(d.bad)} width=${cw} height=${158 - y(d.bad)}/>`}
+      <text class="v" x=${-lw / 2} y=${y(d.ok) - 4}>${d.ok}</text>${(!ph || k % 2 === 0 || k === days.length - 1) && html`<text class=${k === days.length - 1 ? 'today' : ''} y="176">${new Date(d.t).getUTCDate()}</text>`}</g>`)}</svg>`
+}
+
+// Open and stuck lanes as step lines over the last 8 UTC days, against the plan (the fleet's lane caps).
+function Lines({ hist, from, to, plan, W, ph }) {
+  const max = Math.ceil(Math.max(6, plan, ...hist.map(h => h.lanes)) / 2) * 2, step = max <= 8 ? 2 : max / 4, x = t => 22 + (t - from) / (to - from) * (W - 48), y = v => 166 - v / max * 154
+  const path = f => hist.map((h, k) => k ? `H${x(h.t)}V${y(f(h))}` : `M${x(h.t)} ${y(f(h))}`).join('') + `H${x(to)}`, end = hist.at(-1), peak = hist.reduce((a, h) => h.lanes > a.lanes ? h : a)
+  return html`<svg viewBox=${`0 0 ${W} 190`} role="img" aria-label=${`Lanes over 8 days, ending open ${end.lanes}, stuck ${end.stuck}; plan ${plan}.`}>
+    ${Array.from({ length: max / step + 1 }, (_, k) => k * step).map(v => html`<line x1="22" x2=${W - 26} y1=${y(v)} y2=${y(v)} stroke="var(--grid)"/><text x="16" y=${y(v) + 4} text-anchor="end">${v}</text>`)}
+    <line x1="22" x2=${W - 26} y1=${y(plan)} y2=${y(plan)} stroke="var(--plan)" stroke-dasharray="4 3" stroke-width="1.5"/><text x="26" y=${y(plan) - 5}>plan ${plan}</text>
+    <path d=${path(h => h.stuck)} fill="none" stroke="var(--s-line)" stroke-width="2"/><path d=${path(h => h.lanes)} fill="none" stroke="var(--ink)" stroke-width="2"/>
+    ${peak.lanes > end.lanes && html`<text class="v" x=${x(peak.t)} y=${y(peak.lanes) - 5}>${peak.lanes}</text>`}
+    <text class="v" x=${W - 21} y=${y(end.lanes) + 4}>${end.lanes}</text>${end.stuck !== end.lanes && html`<text class="v" x=${W - 21} y=${y(end.stuck) + 4}>${end.stuck}</text>`}
+    ${Array.from({ length: 8 }, (_, k) => from + k * DAY).map((d, k) => (ph ? k % 2 === 0 || k === 7 : k !== 1) && html`<text x=${x(d)} y="184" class=${k === 7 ? 'today' : ''} text-anchor=${k ? 'middle' : 'start'}>${k ? new Date(d).getUTCDate() : new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' })}</text>`)}</svg>`
+}
+
+export function Ops({ fleet }) {
+  const { live, stuck, waiting, running } = answers(fleet), queued = live.filter(l => l.stage === 'queued').length, plan = slotsOf(fleet)
+  const over = fleet.homes.map(h => [h, live.filter(l => l.home === h.id).length]).filter(([h, n]) => n > h.lane_cap)
+  const to = Date.parse(fleet.generated_at), from = Math.floor(to / DAY) * DAY - 7 * DAY, days = mergeBuckets(fleet, '14d', to)
+  // The newest sample of every 6 hours: an hourly step line over 8 days reads as noise.
+  const hist = Object.values((fleet.history || []).map(h => ({ ...h, t: Date.parse(h.at) })).filter(h => h.t >= from && h.t <= to).sort((a, b) => a.t - b.t)
+    .reduce((g, h) => ({ ...g, [Math.floor((h.t - from) / (6 * HOUR))]: h }), {})), end = hist.at(-1)
+  return html`<div class="ops">
+    <p class="sumline"><a href="#running"><b>${running.length}</b> running</a> · <a href="#waiting"><b>${waiting.length}</b> waiting on you</a> · <a href="#stuck"><b>${stuck.length}</b> stuck</a></p>
+    <div class="strip"><span>Waiting on you<b>${waiting.length}</b></span><span>Stuck<b>${stuck.length}</b></span><span>Running<b>${running.length}</b></span><span>Queued<b>${queued}</b></span>
+      ${over.length > 0 && html`<span class="end"><span class="badge b-s">Over plan</span>${over.map(([h, n]) => `${h.name} ${n} lanes, plan ${h.lane_cap}`).join(' · ')}</span>`}</div>
+    <${Block} id="waiting" name="Waiting on you" n=${waiting.length}><${Rows} fleet=${fleet} lanes=${waiting} badge=${['b-q', 'Waiting']} note=${l => l.waiting_on && `Waiting on ${l.waiting_on}`}/><//>
+    <${Block} id="stuck" name="Stuck" n=${stuck.length}><${Rows} fleet=${fleet} lanes=${stuck} badge=${['b-s', 'Stuck']}
+      note=${l => fleet.incidents.find(i => i.lane === l.id && !i.resolved_at)?.summary || l.waiting_on && `Waiting on ${l.waiting_on}`}/><//>
+    <${Block} id="running" name="Running" n=${running.length}><${Rows} fleet=${fleet} lanes=${running} badge=${['b-r']} act=${false}
+      note=${l => fleet.workers.filter(w => w.lane === l.id && w.state === 'working').map(w => `${w.agent}, ${w.model}`).join(' · ')}/><//>
+    <section class="block" id="pipeline" aria-labelledby="h-pipe"><header><h2 id="h-pipe">Pipeline <span class="count">${STAGES.length} stages</span></h2><a class="meta" href="#/lanes">Open the board</a></header>
+      <p class="stagelinks">${STAGES.map(([k, name], i) => html`${i ? ' · ' : ''}<a href="#/lanes">${name} <b>${fleet.lanes.filter(l => l.stage === k).length}</b></a>`)}</p>
+      <ol class="stages" aria-label="Stage counts">${STAGES.map(([k, name]) => { const n = fleet.lanes.filter(l => l.stage === k).length
+        return html`<li key=${k} class=${n ? '' : 'zero'}><span>${name}</span><b>${n}</b></li>` })}</ol></section>
+    <section class="block charts" aria-label="History">
+      <figure class="fig"><h3>Landed per day, last 14 days</h3><div class="meta">${days.at(-1).ok} landed today, ${days.at(-2).ok} yesterday.</div>
+        <div class="dk"><${Landed} days=${days} W=${458}/></div><div class="ph"><${Landed} days=${days} W=${326} ph/></div>
+        <figcaption class="legend"><span><i class="sq" style="background:var(--blue)"></i>Landed</span><span><i class="sq" style="background:var(--closed)"></i>Closed without landing</span><span>${days.reduce((n, d) => n + d.ok, 0)} landed in 14 days</span></figcaption></figure>
+      <figure class="fig"><h3>Open and stuck lanes, last 8 days</h3><div class="meta">${hist.length ? 'The newest sample of every 6 hours.' : 'This source sends no lane history.'}</div>
+        ${hist.length > 1 && html`<div class="dk"><${Lines} hist=${hist} from=${from} to=${to} plan=${plan} W=${458}/></div><div class="ph"><${Lines} hist=${hist} from=${from} to=${to} plan=${plan} W=${326} ph/></div>
+        <figcaption class="legend"><span><i></i>Open ${end.lanes}</span><span><i style="background:var(--s-line)"></i>Stuck ${end.stuck}</span><span><i class="dash"></i>Plan ${plan}</span></figcaption>`}</figure></section></div>`
 }
