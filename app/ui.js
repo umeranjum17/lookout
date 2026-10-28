@@ -10,7 +10,7 @@ export const when = (fleet, t) => ago(t, fleet.generated_at)
 // Nearest-rank percentile of ascending numbers (null for none), and a duration as 2h 26m.
 export const pct = (xs, q) => xs.length ? xs[Math.ceil(q * xs.length) - 1] : null
 export const hm = ms => { const m = Math.round(ms / 60e3); return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}` }
-export const STAGES = [['queued', 'Queued'], ['working', 'Working'], ['review', 'Review'], ['merging', 'Merging'], ['done', 'Done']]
+export const STAGES = [['queued', 'Queued'], ['working', 'Building'], ['review', 'Review'], ['merging', 'Waiting to merge'], ['done', 'Landed']]
 export const open = fleet => fleet.lanes.filter(l => l.stage !== 'done')
 export const slotsOf = fleet => fleet.homes.reduce((n, h) => n + h.lane_cap, 0)
 // A state as a chip with a coloured dot: a lane (stuck wins, else its first live worker's state), a gate, a device, a severity or a release.

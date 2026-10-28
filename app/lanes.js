@@ -1,6 +1,6 @@
 import { html, when, open, STAGES } from './ui.js'
 
-const NONE = { queued: 'Nothing queued.', working: 'Nothing being built.', review: 'Nothing in review.', merging: 'Nothing to merge.', done: 'Nothing done.' }
+const NONE = { queued: 'Nothing queued.', working: 'Nothing being built.', review: 'Nothing in review.', merging: 'Nothing to merge.', done: 'Nothing landed.' }
 const jump = k => e => { e.preventDefault(); document.getElementById('lane-' + k).scrollIntoView() }
 
 // The board's line under the title: how many lanes across which homes, how many open and stuck.
