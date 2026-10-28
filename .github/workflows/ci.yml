@@ -1,12 +1,23 @@
 name: ci
 
+# PR-only: main is covered by release.yml, which runs npm test before publishing.
 on:
-  push:
-    branches: [main]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - "**.md"
+      - "docs/images/**"
+      - "design/**"
+      - ".done-done.yaml"
+      - "LICENSE"
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   test:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

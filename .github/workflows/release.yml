@@ -5,6 +5,12 @@ name: release
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/images/**"
+      - "design/**"
+      - ".done-done.yaml"
+      - "LICENSE"
   workflow_dispatch:
 
 concurrency:
