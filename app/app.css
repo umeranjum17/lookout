@@ -193,5 +193,5 @@ path.ok{fill:var(--acc)}path.bad{fill:var(--red)}g.on path{opacity:.75}
 @media (max-width:760px){
   .app.solo .main{padding:16px 16px 20px}.cols{grid-template-columns:minmax(0,1fr);gap:0}.col{border-top:1px solid var(--line);padding:10px 0}
   .col h2{flex-direction:row;align-items:baseline;gap:8px;border-bottom:0;padding-bottom:0}.col h2 .nm{display:inline;min-height:0}.col h2 .num{font-size:18px;line-height:inherit}
-  .col.empty{display:flex;gap:10px;align-items:baseline}.col.empty .none{border:0;padding:0;margin:0;font-size:13px}
+  .col.empty{display:flex;gap:10px;align-items:baseline;padding:10px 0}.col.empty .none{border:0;padding:0;margin:0;font-size:13px}
 }
