@@ -4,4 +4,4 @@ journeys:
     core: true
   ops:
     command: bash scripts/ops-proof.sh
-approved_design: [{screen: ops, size: 1280x900, theme: light, mock: design/r3c-ops-1280-light.png, capture: ops-after-1280-light.png}, {screen: ops, size: 1280x900, theme: dark, mock: design/r3c-ops-1280-dark.png, capture: ops-after-1280-dark.png}, {screen: ops, size: 390x844, theme: light, mock: design/r3c-ops-390-light.png, capture: ops-after-390-light.png}, {screen: ops, size: 390x844, theme: dark, mock: design/r3c-ops-390-dark.png, capture: ops-after-390-dark.png}]
+approved_design: [{screen: ops, size: 1280x844, theme: light, mock: design/r3c-ops-1280-light-fold.png, capture: ops-after-1280-light-fold.png}, {screen: ops, size: 1280x844, theme: dark, mock: design/r3c-ops-1280-dark-fold.png, capture: ops-after-1280-dark-fold.png}, {screen: ops, size: 390x844, theme: light, mock: design/r3c-ops-390-light-fold.png, capture: ops-after-390-light-fold.png}, {screen: ops, size: 390x844, theme: dark, mock: design/r3c-ops-390-dark-fold.png, capture: ops-after-390-dark-fold.png}]
