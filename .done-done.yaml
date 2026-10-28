@@ -2,3 +2,5 @@ journeys:
   readme:
     command: bash scripts/run-proof.sh
     core: true
+  ops:
+    command: bash scripts/ops-proof.sh
