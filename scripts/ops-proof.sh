@@ -14,4 +14,4 @@ for state in before:4421 after:4422; do for width in 360 390 445 1280 1440; do f
   $c eval '() => { const w = document.documentElement.scrollWidth; if (w > innerWidth) throw new Error(`scrolls sideways: ${w}`); return document.querySelector("h1").textContent }'
   $c screenshot "$out/ops-${state%:*}-$width-$theme.png" --full-page
 done; done; done >> "$out/browser.log"
-done-done look http://127.0.0.1:4422/ --out "$out/ops-look-390.png"
+done-done look http://127.0.0.1:4422/ --out "$out/ops-look-390.png" && echo "{\"target\":{\"version\":\"$(node bin/lookout.js --version)\"},\"start\":\"lookout serve on the sample fleet\",\"steps\":[\"open http://127.0.0.1:4422/ at 360, 390, 445, 1280 and 1440 px in light and dark\"],\"result\":\"Ops: waiting on you, stuck, running, pipeline and two history charts in the rail shell, no sideways scroll\"}" > "$out/steps.json"
